@@ -238,6 +238,10 @@ export default function Home() {
                   alt={`${profile.name} - Full Stack Developer`}
                   className="hero-photo"
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  width={270}
+                  height={370}
                   itemProp="image"
                 />
               </div>

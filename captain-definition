@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "dockerfileLines": [
+    "FROM node:20-alpine",
+    "WORKDIR /usr/src/app",
+    "COPY package*.json ./",
+    "RUN npm ci",
+    "COPY . .",
+    "RUN npm run build",
+    "ENV NODE_ENV=production",
+    "EXPOSE 80",
+    "CMD [\"npm\", \"run\", \"start\", \"--\", \"-p\", \"80\"]"
+  ]
+}

@@ -81,11 +81,8 @@ export const projects: PortfolioProject[] = [
       "Meta Graph API",
     ],
     category: "Full Stack",
-    liveUrl: "https://client-autoreach-ai.vercel.app/",
-    githubUrls: {
-      frontend: "https://github.com/zeeshan-890/client-autoreach-ai",
-      backend: "https://github.com/zeeshan-890/server-autoreach-ai",
-    },
+    liveUrl: "www.viralix.dev/",
+   
   },
   {
     id: "ecommerce-website",
@@ -103,15 +100,12 @@ export const projects: PortfolioProject[] = [
       "JWT",
     ],
     category: "Full Stack",
-    liveUrl: "https://ecommerce-client-roan-one.vercel.app/",
-    githubUrls: {
-      frontend: "https://github.com/zeeshan-890/ecommerce-client",
-      backend: "https://github.com/zeeshan-890/ecommerce-server",
-    },
+    liveUrl: "https://handphone.app.zeeshan-abbas.tech/",
+   githubUrl: "https://github.com/zeeshan-890/handphone",
   },
   {
     id: "chat-videocall-app",
-    title: "FullStack Realtime Chat & Video Call App",
+    title: "Converza - FullStack Realtime Chat & Video Call App",
     shortDescription:
       "MERN + Socket.IO + WebRTC app with real-time messaging, peer-to-peer video calls, JWT auth, and online presence.",
     technologies: [
@@ -125,28 +119,10 @@ export const projects: PortfolioProject[] = [
       "Docker",
     ],
     category: "Full Stack",
-    liveUrl: "https://chat-videocall.app.viralix.dev",
+    liveUrl: "https://converza.app.zeeshan-abbas.tech",
     githubUrl: "https://github.com/zeeshan-890/Chat-App",
   },
-  {
-    id: "portfolio-builder",
-    title: "PortfolioBuilder - AI-Powered Portfolio Creator",
-    shortDescription:
-      "Modern full-stack portfolio builder with AI resume parsing, drag and drop sections, multiple themes, and shareable links.",
-    technologies: [
-      "Next.js 16",
-      "TypeScript",
-      "Tailwind CSS",
-      "Node.js",
-      "Express.js",
-      "MongoDB",
-      "Google Gemini AI",
-      "Docker",
-    ],
-    category: "Full Stack",
-    liveUrl: "https://portfolio-builder.app.viralix.dev/",
-    githubUrl: "https://github.com/zeeshan-890/latest-portfolio-builder",
-  },
+  
   {
     id: "remote-vitals-monitoring",
     title: "Remote Vitals Monitoring System",
@@ -211,7 +187,7 @@ export const projects: PortfolioProject[] = [
       "Recharts",
     ],
     category: "Full Stack",
-    liveUrl: "https://financer.app.viralix.dev/",
+    liveUrl: "https://financer.app.zeeshan-abbas.tech/",
     githubUrl: "https://github.com/zeeshan-890/financer",
   },
 ];

@@ -155,7 +155,7 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       ),
       viewWork: asString(heroButtonsSource.viewWork, defaultPortfolioData.heroButtons.viewWork),
     },
-    skills: normalizeSkills(partial.skills),
+    skills: normalizeSkills(partial.skills).slice(0, 6),
     about: {
       heading: asString(aboutSource.heading, defaultPortfolioData.about.heading),
       subheading: asString(aboutSource.subheading, defaultPortfolioData.about.subheading),

@@ -298,6 +298,15 @@ export default function AdminDashboard() {
 
           {tab === "skills" && (
             <div>
+              <div className="admin-panel">
+                <p className="admin-panel-hint">
+                  Add up to 6 skill categories. Layout: 1–3 stack in one column; 4 uses 2 full
+                  rows (2×2); 5–6 use 3 rows with 2 columns each.
+                </p>
+                <p className="admin-panel-hint">
+                  {data.skills.length}/6 categories added
+                </p>
+              </div>
               {data.skills.map((category, catIndex) => (
                 <div key={catIndex} className="admin-panel">
                   <div className="admin-list-item-header">
@@ -340,6 +349,7 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 className="admin-btn"
+                disabled={data.skills.length >= 6}
                 onClick={() =>
                   update((p) => ({
                     ...p,

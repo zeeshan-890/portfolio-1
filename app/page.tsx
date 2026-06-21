@@ -79,12 +79,25 @@ function categoryIcon(category: PortfolioProject["category"]) {
   );
 }
 
+function getSkillsLayout(count: number) {
+  if (count <= 3) {
+    return { className: "", rows: count };
+  }
+
+  if (count === 4) {
+    return { className: " hero-right-cols-2", rows: 2 };
+  }
+
+  return { className: " hero-right-cols-2", rows: 3 };
+}
+
 export default async function Home() {
   const data = await getPortfolioData();
   const { profile, heroStats, skills, about, contact, projectsSection, sections, navigation, resumes } =
     data;
   const featuredProjects = getFeaturedProjects(data);
   const enabledNav = navigation.filter((item) => item.enabled);
+  const skillsLayout = getSkillsLayout(skills.length);
 
   const nameParts = profile.name.split(" ");
   const firstLine = nameParts.slice(0, 1).join(" ");
@@ -299,15 +312,18 @@ export default async function Home() {
             </div>
             )}
 
-            {sections.skills && (
-            <div className="hero-right animate-fade-in-right">
+            {sections.skills && skills.length > 0 && (
+            <div
+              className={`hero-right animate-fade-in-right${skillsLayout.className}`}
+              style={{ "--skill-rows": skillsLayout.rows } as CSSProperties}
+            >
               <p className="sr-only">
                 Featured projects from {profile.name}: {data.projects.map((p) => p.title).join(", ")}
               </p>
 
-              {skills.slice(0, 3).map((category) => (
+              {skills.map((category, index) => (
                 <div
-                  key={category.title}
+                  key={`${category.title}-${index}`}
                   className="skill-card glass-card hover-shine hover-lift"
                   itemProp="knowsAbout"
                 >

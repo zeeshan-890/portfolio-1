@@ -1,5 +1,5 @@
 import { defaultPortfolioData } from "../data/defaultPortfolio";
-import type { PortfolioData, PortfolioProject, SkillCategory, NavItem } from "../data/portfolioTypes";
+import type { PortfolioData, PortfolioProject, SkillCategory, NavItem, PortfolioResume } from "../data/portfolioTypes";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -109,6 +109,28 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       })
     : defaultPortfolioData.navigation;
 
+  const resumes: PortfolioResume[] = Array.isArray(partial.resumes)
+    ? partial.resumes
+        .map((item, index) => {
+          const source = isRecord(item) ? item : {};
+          return {
+            id: asString(source.id, `resume-${index + 1}`),
+            title: asString(source.title, `Resume ${index + 1}`),
+          };
+        })
+        .filter((item) => item.id && item.title)
+    : defaultPortfolioData.resumes;
+
+  const legacyResumePath =
+    isRecord(profileSource) && typeof profileSource.resumePath === "string"
+      ? profileSource.resumePath
+      : "";
+
+  const normalizedResumes =
+    resumes.length === 0 && legacyResumePath === "/api/resume"
+      ? [{ id: "legacy", title: "Resume" }]
+      : resumes;
+
   return {
     profile: {
       name: asString(profileSource.name, defaultPortfolioData.profile.name),
@@ -119,7 +141,6 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       email: asString(profileSource.email, defaultPortfolioData.profile.email),
       linkedin: asString(profileSource.linkedin, defaultPortfolioData.profile.linkedin),
       github: asString(profileSource.github, defaultPortfolioData.profile.github),
-      resumePath: asString(profileSource.resumePath, defaultPortfolioData.profile.resumePath),
       imagePath: asString(profileSource.imagePath, defaultPortfolioData.profile.imagePath),
       availabilityText: asString(
         profileSource.availabilityText,
@@ -168,6 +189,7 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       ),
     },
     projects,
+    resumes: normalizedResumes,
     contact: {
       heading: asString(contactSource.heading, defaultPortfolioData.contact.heading),
       subtext: asString(contactSource.subtext, defaultPortfolioData.contact.subtext),

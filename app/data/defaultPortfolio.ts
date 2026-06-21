@@ -11,7 +11,6 @@ export const defaultPortfolioData: PortfolioData = {
     email: "zzabbaskhan830@email.com",
     linkedin: "https://www.linkedin.com/in/muhammad-zeeshan-abbas-82076a36b/",
     github: "https://github.com/zeeshan-890",
-    resumePath: "/resume.pdf",
     imagePath: "/profilepic.png",
     availabilityText: "Available for new projects",
   },
@@ -189,6 +188,7 @@ export const defaultPortfolioData: PortfolioData = {
       githubUrl: "https://github.com/zeeshan-890/financer",
     },
   ],
+  resumes: [],
   contact: {
     heading: "Let's Work Together",
     subtext:

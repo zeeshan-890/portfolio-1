@@ -2,6 +2,7 @@ export type {
   SkillCategory,
   PortfolioProject,
   PortfolioData,
+  PortfolioResume,
   NavItem,
   SectionVisibility,
 } from "./portfolioTypes";

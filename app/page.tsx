@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import PortfolioNavObserver from "./components/PortfolioNavObserver";
+import ResumePickerButton from "./components/ResumePickerButton";
 import type { PortfolioProject } from "./data/portfolioTypes";
 import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
 
@@ -80,7 +81,7 @@ function categoryIcon(category: PortfolioProject["category"]) {
 
 export default async function Home() {
   const data = await getPortfolioData();
-  const { profile, heroStats, skills, about, contact, projectsSection, sections, navigation } =
+  const { profile, heroStats, skills, about, contact, projectsSection, sections, navigation, resumes } =
     data;
   const featuredProjects = getFeaturedProjects(data);
   const enabledNav = navigation.filter((item) => item.enabled);
@@ -201,26 +202,25 @@ export default async function Home() {
               </div>
 
               <div className="hero-btns">
-                <a
-                  href={profile.resumePath}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <ResumePickerButton
+                  resumes={resumes}
+                  label={data.heroButtons.downloadCv}
                   className="btn-primary btn-shine"
-                >
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  {data.heroButtons.downloadCv}
-                </a>
+                  icon={
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  }
+                />
                 <a href="#projects" className="btn-outline">
                   {data.heroButtons.viewWork}
                 </a>
@@ -578,22 +578,26 @@ export default async function Home() {
                   </div>
 
                   <div style={{ marginBottom: "24px" }}>
-                    <a href={profile.resumePath} target="_blank" rel="noopener noreferrer" className="contact-download">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" x2="12" y1="15" y2="3" />
-                      </svg>
-                      {data.heroButtons.downloadCv}
-                    </a>
+                    <ResumePickerButton
+                      resumes={resumes}
+                      label={data.heroButtons.downloadCv}
+                      className="contact-download"
+                      icon={
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" x2="12" y1="15" y2="3" />
+                        </svg>
+                      }
+                    />
                   </div>
 
                   <div className="contact-social-wrap">

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/app/lib/auth";
-import { updateResumePath } from "@/app/lib/portfolioStore";
-import { RESUME_API_PATH, saveResumeFile } from "@/app/lib/resumeStore";
+import { addResume, removeResume } from "@/app/lib/portfolioStore";
+import { createResumeId, deleteResumeFile, saveResumeFile } from "@/app/lib/resumeStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,16 +17,18 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const file = formData.get("file");
+    const title = String(formData.get("title") ?? "").trim();
+
+    if (!title) {
+      return NextResponse.json({ error: "Resume title is required" }, { status: 400 });
+    }
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     if (!ALLOWED_TYPES.has(file.type)) {
-      return NextResponse.json(
-        { error: "Only PDF files are allowed" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Only PDF files are allowed" }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
@@ -36,13 +38,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const id = createResumeId(title);
     const buffer = Buffer.from(await file.arrayBuffer());
-    await saveResumeFile(buffer, file.type);
-    await updateResumePath(RESUME_API_PATH);
+    await saveResumeFile(id, buffer, file.type, title);
+    const resumes = await addResume({ id, title });
 
     return NextResponse.json({
       success: true,
-      resumePath: RESUME_API_PATH,
+      resume: { id, title },
+      resumes,
       fileName: file.name,
       fileSize: file.size,
     });
@@ -51,6 +55,33 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Failed to upload resume",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const id = new URL(request.url).searchParams.get("id")?.trim();
+    if (!id) {
+      return NextResponse.json({ error: "Resume id is required" }, { status: 400 });
+    }
+
+    await deleteResumeFile(id);
+    const resumes = await removeResume(id);
+
+    return NextResponse.json({ success: true, resumes });
+  } catch (error) {
+    console.error("[api/upload/resume] DELETE failed:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to delete resume",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

@@ -1,5 +1,5 @@
 import { defaultPortfolioData } from "../data/defaultPortfolio";
-import type { PortfolioData } from "../data/portfolioTypes";
+import type { PortfolioData, PortfolioResume } from "../data/portfolioTypes";
 import { getDb } from "./mongodb";
 import { normalizePortfolioData } from "./portfolioNormalize";
 
@@ -62,12 +62,18 @@ export async function seedPortfolioData(
   return existing ? "updated" : "seeded";
 }
 
-export async function updateResumePath(resumePath: string): Promise<void> {
+export async function addResume(resume: PortfolioResume): Promise<PortfolioResume[]> {
   const data = await getPortfolioData();
-  await savePortfolioData({
-    ...data,
-    profile: { ...data.profile, resumePath },
-  });
+  const resumes = [...data.resumes.filter((item) => item.id !== resume.id), resume];
+  await savePortfolioData({ ...data, resumes });
+  return resumes;
+}
+
+export async function removeResume(id: string): Promise<PortfolioResume[]> {
+  const data = await getPortfolioData();
+  const resumes = data.resumes.filter((item) => item.id !== id);
+  await savePortfolioData({ ...data, resumes });
+  return resumes;
 }
 
 export function getFeaturedProjects(data: PortfolioData) {

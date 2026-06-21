@@ -32,6 +32,11 @@ export type SectionVisibility = {
   contact: boolean;
 };
 
+export type PortfolioResume = {
+  id: string;
+  title: string;
+};
+
 export type PortfolioData = {
   profile: {
     name: string;
@@ -42,7 +47,6 @@ export type PortfolioData = {
     email: string;
     linkedin: string;
     github: string;
-    resumePath: string;
     imagePath: string;
     availabilityText: string;
   };
@@ -70,6 +74,7 @@ export type PortfolioData = {
     description: string;
   };
   projects: PortfolioProject[];
+  resumes: PortfolioResume[];
   contact: {
     heading: string;
     subtext: string;

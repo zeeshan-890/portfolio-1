@@ -12,7 +12,7 @@ import {
   TextField,
   ToggleField,
 } from "./AdminFields";
-import ResumeUpload from "./ResumeUpload";
+import ResumeManager from "./ResumeManager";
 
 const TABS = [
   { id: "profile", label: "Profile" },
@@ -240,19 +240,9 @@ export default function AdminDashboard() {
                   value={data.profile.github}
                   onChange={(github) => update((p) => ({ ...p, profile: { ...p.profile, github } }))}
                 />
-                <ResumeUpload
-                  resumePath={data.profile.resumePath}
-                  onUploaded={(resumePath) =>
-                    update((p) => ({ ...p, profile: { ...p.profile, resumePath } }))
-                  }
-                />
-                <TextField
-                  label="Resume Path (auto-set on upload)"
-                  value={data.profile.resumePath}
-                  onChange={(resumePath) =>
-                    update((p) => ({ ...p, profile: { ...p.profile, resumePath } }))
-                  }
-                  placeholder="/api/resume"
+                <ResumeManager
+                  resumes={data.resumes}
+                  onResumesChange={(resumes) => update((p) => ({ ...p, resumes }))}
                 />
                 <TextField
                   label="Profile Image Path"

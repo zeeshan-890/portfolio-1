@@ -1585,3 +1585,76 @@ a {
     padding: 0 20px 20px;
   }
 }
+
+.portfolio-home button.btn-primary,
+.portfolio-home button.contact-download {
+  font-family: inherit;
+}
+
+.resume-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.resume-picker-dialog {
+  width: min(420px, 100%);
+  padding: 20px;
+  border-radius: 0;
+}
+
+.resume-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.resume-picker-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.resume-picker-close {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.resume-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resume-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.resume-picker-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.resume-picker-item span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}

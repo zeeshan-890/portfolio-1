@@ -16,9 +16,11 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Muhammad Zeeshan Abbas — Full Stack Developer",
-  description:
-    "Portfolio of Muhammad Zeeshan Abbas, Full Stack Developer specializing in React, Next.js, TypeScript, and MERN stack applications.",
+  title: {
+    default: "Portfolio",
+    template: "%s",
+  },
+  description: "Developer portfolio",
 };
 
 export default function RootLayout({

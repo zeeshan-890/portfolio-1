@@ -1,15 +1,16 @@
 import type { CSSProperties } from "react";
+import type { Metadata } from "next";
 import PortfolioNavObserver from "./components/PortfolioNavObserver";
-import {
-  aboutParagraphs,
-  achievements,
-  featuredProjects,
-  heroStats,
-  profile,
-  projects,
-  skills,
-  type PortfolioProject,
-} from "./data/portfolioData";
+import type { PortfolioProject } from "./data/portfolioTypes";
+import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getPortfolioData();
+  return {
+    title: data.seo.title,
+    description: data.seo.description,
+  };
+}
 
 const glowPositions = [
   { x: "86%", y: "10%" },
@@ -75,7 +76,13 @@ function categoryIcon(category: PortfolioProject["category"]) {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const data = await getPortfolioData();
+  const { profile, heroStats, skills, about, contact, projectsSection, sections, navigation } =
+    data;
+  const featuredProjects = getFeaturedProjects(data);
+  const enabledNav = navigation.filter((item) => item.enabled);
+
   const nameParts = profile.name.split(" ");
   const firstLine = nameParts.slice(0, 1).join(" ");
   const secondLine = nameParts.slice(1).join(" ");
@@ -87,97 +94,84 @@ export default function Home() {
         <div className="top-bar" />
 
         <nav className="side-nav">
-          <a href="#about" className="active" data-nav-target="about">
-            About Me
-          </a>
-          <a href="#projects" data-nav-target="projects">
-            Projects
-          </a>
-          <a href="#contact" data-nav-target="contact">
-            Contact
-          </a>
-          <a href="#">Default</a>
+          {enabledNav.map((item, index) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={index === 0 ? "active" : undefined}
+              data-nav-target={item.id}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
 
         <nav className="mobile-dock-nav" aria-label="Mobile navigation">
           <div className="glass-card mobile-dock-inner">
-            <a href="#about" className="mobile-dock-item active" data-nav-target="about">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            {enabledNav.map((item, index) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={`mobile-dock-item${index === 0 ? " active" : ""}`}
+                data-nav-target={item.id}
               >
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span>About</span>
-            </a>
-            <a href="#projects" className="mobile-dock-item" data-nav-target="projects">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                <rect width="20" height="14" x="2" y="6" rx="2" />
-              </svg>
-              <span>Projects</span>
-            </a>
-            <a href="#contact" className="mobile-dock-item" data-nav-target="contact">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-              <span>Contact</span>
-            </a>
-            <div className="mobile-dock-divider" aria-hidden="true" />
-            <a href="#" className="mobile-dock-item mobile-dock-default" aria-label="Default theme">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
-              </svg>
-              <span>Default</span>
-            </a>
+                {item.id === "about" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                )}
+                {item.id === "projects" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    <rect width="20" height="14" x="2" y="6" rx="2" />
+                  </svg>
+                )}
+                {item.id === "contact" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                )}
+                <span>{item.label.split(" ")[0]}</span>
+              </a>
+            ))}
           </div>
         </nav>
 
         <main className="portfolio-main">
           <section id="about" itemScope itemType="https://schema.org/Person">
+            {sections.hero && (
             <div className="hero-left glass-card hover-shine hover-lift animate-fade-in-left">
               <div>
                 <h1 className="hero-name" itemProp="name">
@@ -223,14 +217,16 @@ export default function Home() {
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  Download CV
+                  {data.heroButtons.downloadCv}
                 </a>
                 <a href="#projects" className="btn-outline">
-                  View My Work
+                  {data.heroButtons.viewWork}
                 </a>
               </div>
             </div>
+            )}
 
+            {sections.hero && (
             <div className="hero-center glass-card hover-shine hover-lift animate-fade-in-up">
               <div className="hero-photo-area">
                 <img
@@ -295,14 +291,16 @@ export default function Home() {
                     <rect width="18" height="18" x="3" y="4" rx="2" />
                     <path d="M3 10h18" />
                   </svg>
-                  <button type="button">Available for new projects</button>
+                  <button type="button">{profile.availabilityText}</button>
                 </div>
               </div>
             </div>
+            )}
 
+            {sections.skills && (
             <div className="hero-right animate-fade-in-right">
               <p className="sr-only">
-                Featured projects from {profile.name}: {projects.map((p) => p.title).join(", ")}
+                Featured projects from {profile.name}: {data.projects.map((p) => p.title).join(", ")}
               </p>
 
               {skills.slice(0, 3).map((category) => (
@@ -335,25 +333,26 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            )}
           </section>
 
+          {sections.aboutCard && (
           <div className="about-section animate-fade-in-up">
             <div className="glass-card about-card hover-lift hover-shine">
-              <h2 className="about-heading">About Me</h2>
+              <h2 className="about-heading">{about.heading}</h2>
 
               <div className="about-columns">
-                <div>
-                  <p className="about-text">{aboutParagraphs[0]}</p>
-                </div>
-                <div>
-                  <p className="about-text">{aboutParagraphs[1]}</p>
-                </div>
+                {about.paragraphs.map((paragraph, index) => (
+                  <div key={index}>
+                    <p className="about-text">{paragraph}</p>
+                  </div>
+                ))}
               </div>
 
               <div className="about-achievements-wrap">
-                <h4 className="about-subheading">Key Highlights</h4>
+                <h4 className="about-subheading">{about.subheading}</h4>
                 <div className="about-achievements-grid">
-                  {achievements.map((item) => (
+                  {about.achievements.map((item) => (
                     <div key={item} className="about-achievement">
                       <div className="about-dot" />
                       <span className="about-text">{item}</span>
@@ -363,7 +362,9 @@ export default function Home() {
               </div>
             </div>
           </div>
+          )}
 
+          {sections.projects && (
           <section id="projects" itemScope itemType="https://schema.org/ItemList">
             <div className="sr-only" aria-hidden="true">
               <h2>{profile.name} Latest Software Development Projects Portfolio</h2>
@@ -377,14 +378,13 @@ export default function Home() {
             <div className="projects-wrap">
               <div className="projects-intro scroll-reveal animate-fade-in-up revealed">
                 <h2 className="projects-heading" itemProp="name">
-                  Latest Projects
+                  {projectsSection.heading}
                 </h2>
                 <p className="projects-subtext animate-fade-in-left" itemProp="description">
-                  Showcasing recently added projects with modern full-stack engineering,
-                  production workflows, and practical problem solving.
+                  {projectsSection.subtext}
                 </p>
                 <a className="projects-all-link glass-card hover-lift hover-shine" href="/projects">
-                  View All Projects
+                  {projectsSection.viewAllLabel}
                   <svg
                     width="16"
                     height="16"
@@ -476,22 +476,23 @@ export default function Home() {
               </div>
             </div>
           </section>
+          )}
 
           <div className="section-divider" />
 
+          {sections.contact && (
           <section id="contact">
             <div className="contact-wrap">
               <div className="contact-intro scroll-reveal animate-fade-in-up revealed">
-                <h2 className="contact-heading hover-glow">Let's Work Together</h2>
+                <h2 className="contact-heading hover-glow">{contact.heading}</h2>
                 <p className="contact-subtext animate-fade-in-up">
-                  I&apos;m actively seeking opportunities to contribute to innovative products.
-                  Let&apos;s discuss how I can bring value to your team.
+                  {contact.subtext}
                 </p>
               </div>
 
               <div className="contact-panels">
                 <div className="contact-card glass-card hover-lift hover-shine scroll-reveal animate-fade-in-up revealed">
-                  <h3 className="contact-card-title">Send a Message</h3>
+                  <h3 className="contact-card-title">{contact.formTitle}</h3>
                   <form className="contact-form">
                     <div className="contact-form-grid">
                       <div className="contact-field">
@@ -504,7 +505,7 @@ export default function Home() {
                           name="name"
                           required
                           className="contact-input"
-                          placeholder="Your name"
+                          placeholder={contact.namePlaceholder}
                         />
                       </div>
                       <div className="contact-field">
@@ -517,7 +518,7 @@ export default function Home() {
                           name="email"
                           required
                           className="contact-input"
-                          placeholder="your.email@example.com"
+                          placeholder={contact.emailPlaceholder}
                         />
                       </div>
                     </div>
@@ -532,7 +533,7 @@ export default function Home() {
                         required
                         rows={8}
                         className="contact-textarea"
-                        placeholder="Tell me about your project..."
+                        placeholder={contact.messagePlaceholder}
                       />
                     </div>
 
@@ -549,7 +550,7 @@ export default function Home() {
                         <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
                         <path d="m21.854 2.147-10.94 10.939" />
                       </svg>
-                      Send Message
+                      {contact.submitLabel}
                     </button>
                   </form>
                 </div>
@@ -558,10 +559,9 @@ export default function Home() {
                   className="contact-card glass-card hover-lift hover-shine scroll-reveal animate-fade-in-right revealed"
                   style={{ display: "flex", flexDirection: "column" }}
                 >
-                  <h3 className="contact-card-title">Get in Touch</h3>
+                  <h3 className="contact-card-title">{contact.infoTitle}</h3>
                   <p className="contact-info-text">
-                    Feel free to reach out through any channel. I&apos;m always open to discussing
-                    projects, collaboration, and product ideas.
+                    {contact.infoText}
                   </p>
 
                   <div className="contact-meta">
@@ -590,12 +590,12 @@ export default function Home() {
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" x2="12" y1="15" y2="3" />
                       </svg>
-                      Download CV
+                      {data.heroButtons.downloadCv}
                     </a>
                   </div>
 
                   <div className="contact-social-wrap">
-                    <h4 className="contact-social-title">Connect with me</h4>
+                    <h4 className="contact-social-title">{contact.socialTitle}</h4>
                     <div className="contact-social-grid">
                       <a
                         href={profile.github}
@@ -658,6 +658,7 @@ export default function Home() {
               </div>
             </div>
           </section>
+          )}
         </main>
       </div>
     </>

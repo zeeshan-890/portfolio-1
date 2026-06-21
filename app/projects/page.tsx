@@ -1,12 +1,15 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { profile, projects, type PortfolioProject } from "../data/portfolioData";
+import type { PortfolioProject } from "../data/portfolioTypes";
+import { getPortfolioData } from "../lib/portfolioStore";
 
-export const metadata: Metadata = {
-  title: "All Projects — Muhammad Zeeshan Abbas",
-  description:
-    "Complete projects portfolio of Muhammad Zeeshan Abbas across full-stack and frontend development.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getPortfolioData();
+  return {
+    title: data.seo.projectsTitle,
+    description: data.seo.projectsDescription,
+  };
+}
 
 const pointerPositions = [
   { x: "86.35%", y: "14.11%" },
@@ -87,7 +90,10 @@ function secondaryActions(project: PortfolioProject) {
   return actions.slice(0, 2);
 }
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const data = await getPortfolioData();
+  const { profile, projects, projectsPage } = data;
+
   return (
     <div className="projects-page">
       <div className="page-wrap">
@@ -107,17 +113,16 @@ export default function ProjectsPage() {
                 <path d="M19 12H5" />
               </svg>
             </a>
-            <h1 className="header-title">All Projects</h1>
+            <h1 className="header-title">{projectsPage.title}</h1>
           </div>
         </header>
 
         <main className="main">
           <div className="container">
             <div className="hero-title">
-              <h2>Complete Portfolio</h2>
+              <h2>{projectsPage.heading}</h2>
               <p>
-                Explore the complete collection of {profile.name}&apos;s projects across
-                full-stack systems, AI-first products, and frontend applications.
+                {projectsPage.description.replace("{name}", profile.name)}
               </p>
             </div>
 

@@ -77,6 +77,5 @@ export async function removeResume(id: string): Promise<PortfolioResume[]> {
 }
 
 export function getFeaturedProjects(data: PortfolioData) {
-  const count = Math.max(0, data.projectsSection.featuredCount);
-  return data.projects.slice(0, count);
+  return data.projects.filter((project) => project.showOnHomepage);
 }

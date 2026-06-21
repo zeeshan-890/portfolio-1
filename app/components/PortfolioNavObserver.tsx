@@ -20,8 +20,14 @@ export default function PortfolioNavObserver() {
           ".portfolio-home #about, .portfolio-home .about-section"
         )
       ),
+      experience: Array.from(
+        document.querySelectorAll<HTMLElement>(".portfolio-home #experience")
+      ),
       projects: Array.from(
         document.querySelectorAll<HTMLElement>(".portfolio-home #projects")
+      ),
+      education: Array.from(
+        document.querySelectorAll<HTMLElement>(".portfolio-home #education")
       ),
       contact: Array.from(
         document.querySelectorAll<HTMLElement>(".portfolio-home #contact")

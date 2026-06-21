@@ -3,12 +3,18 @@ export type SkillCategory = {
   skills: string[];
 };
 
+export type ProjectCategory = {
+  id: string;
+  label: string;
+};
+
 export type PortfolioProject = {
   id: string;
   title: string;
   shortDescription: string;
   technologies: string[];
-  category: "Full Stack" | "Frontend" | "Backend" | "Mobile";
+  categoryId: string;
+  showOnHomepage: boolean;
   liveUrl?: string;
   githubUrl?: string;
   githubUrls?: {
@@ -19,7 +25,7 @@ export type PortfolioProject = {
 };
 
 export type NavItem = {
-  id: "about" | "projects" | "contact";
+  id: "about" | "experience" | "projects" | "education" | "contact";
   label: string;
   enabled: boolean;
 };
@@ -28,8 +34,39 @@ export type SectionVisibility = {
   hero: boolean;
   skills: boolean;
   aboutCard: boolean;
+  experience: boolean;
   projects: boolean;
+  education: boolean;
   contact: boolean;
+};
+
+export type ExperienceItem = {
+  id: string;
+  role: string;
+  company: string;
+  period: string;
+  location?: string;
+  description: string;
+  highlights: string[];
+};
+
+export type EducationItem = {
+  id: string;
+  degree: string;
+  institution: string;
+  period: string;
+  location?: string;
+  description?: string;
+  highlights: string[];
+};
+
+export type CertificationItem = {
+  id: string;
+  title: string;
+  issuer: string;
+  period?: string;
+  credentialUrl?: string;
+  description?: string;
 };
 
 export type PortfolioResume = {
@@ -62,6 +99,19 @@ export type PortfolioData = {
     paragraphs: string[];
     achievements: string[];
   };
+  experienceSection: {
+    heading: string;
+    subtext: string;
+  };
+  experiences: ExperienceItem[];
+  educationCertificationsSection: {
+    heading: string;
+    subtext: string;
+    educationHeading: string;
+    certificationsHeading: string;
+  };
+  education: EducationItem[];
+  certifications: CertificationItem[];
   projectsSection: {
     heading: string;
     subtext: string;
@@ -72,7 +122,9 @@ export type PortfolioData = {
     title: string;
     heading: string;
     description: string;
+    allLabel: string;
   };
+  projectCategories: ProjectCategory[];
   projects: PortfolioProject[];
   resumes: PortfolioResume[];
   contact: {

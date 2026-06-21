@@ -1,5 +1,16 @@
 import { defaultPortfolioData } from "../data/defaultPortfolio";
-import type { PortfolioData, PortfolioProject, SkillCategory, NavItem, PortfolioResume } from "../data/portfolioTypes";
+import type {
+  PortfolioData,
+  PortfolioProject,
+  ProjectCategory,
+  SkillCategory,
+  NavItem,
+  PortfolioResume,
+  ExperienceItem,
+  EducationItem,
+  CertificationItem,
+} from "../data/portfolioTypes";
+import { LEGACY_PROJECT_CATEGORY_MAP, createCategoryId } from "./projectUtils";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -16,25 +27,49 @@ function asStringArray(value: unknown, fallback: string[]): string[] {
   return value.filter((item): item is string => typeof item === "string");
 }
 
-function normalizeProject(value: unknown, index: number): PortfolioProject {
+function normalizeProjectCategories(value: unknown): ProjectCategory[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return defaultPortfolioData.projectCategories;
+  }
+
+  return value.map((item, index) => {
+    const source = isRecord(item) ? item : {};
+    const label = asString(source.label, `Category ${index + 1}`);
+    return {
+      id: asString(source.id, createCategoryId(label)),
+      label,
+    };
+  });
+}
+
+function normalizeProject(
+  value: unknown,
+  index: number,
+  categories: ProjectCategory[],
+  featuredCount: number
+): PortfolioProject {
   const source = isRecord(value) ? value : {};
-  const category = source.category;
-  const validCategory =
-    category === "Full Stack" ||
-    category === "Frontend" ||
-    category === "Backend" ||
-    category === "Mobile"
-      ? category
-      : "Full Stack";
+  const fallbackCategoryId = categories[0]?.id ?? "full-stack";
+
+  let categoryId = asString(source.categoryId, "");
+  if (!categoryId && typeof source.category === "string") {
+    categoryId = LEGACY_PROJECT_CATEGORY_MAP[source.category] ?? fallbackCategoryId;
+  }
+  if (!categories.some((category) => category.id === categoryId)) {
+    categoryId = fallbackCategoryId;
+  }
 
   const githubUrlsSource = isRecord(source.githubUrls) ? source.githubUrls : undefined;
+  const showOnHomepage =
+    typeof source.showOnHomepage === "boolean" ? source.showOnHomepage : index < featuredCount;
 
   return {
     id: asString(source.id, `project-${index + 1}`),
     title: asString(source.title, "Untitled Project"),
     shortDescription: asString(source.shortDescription, ""),
     technologies: asStringArray(source.technologies, []),
-    category: validCategory,
+    categoryId,
+    showOnHomepage,
     liveUrl: typeof source.liveUrl === "string" ? source.liveUrl : undefined,
     githubUrl: typeof source.githubUrl === "string" ? source.githubUrl : undefined,
     githubUrls: githubUrlsSource
@@ -70,10 +105,98 @@ function normalizeSkills(value: unknown): SkillCategory[] {
   });
 }
 
+function normalizeExperience(value: unknown, index: number): ExperienceItem {
+  const source = isRecord(value) ? value : {};
+  return {
+    id: asString(source.id, `experience-${index + 1}`),
+    role: asString(source.role, "Role"),
+    company: asString(source.company, "Company"),
+    period: asString(source.period, "Period"),
+    location: typeof source.location === "string" ? source.location : undefined,
+    description: asString(source.description, ""),
+    highlights: asStringArray(source.highlights, []),
+  };
+}
+
+function normalizeEducation(value: unknown, index: number): EducationItem {
+  const source = isRecord(value) ? value : {};
+  return {
+    id: asString(source.id, `education-${index + 1}`),
+    degree: asString(source.degree, "Degree"),
+    institution: asString(source.institution, "Institution"),
+    period: asString(source.period, "Period"),
+    location: typeof source.location === "string" ? source.location : undefined,
+    description: typeof source.description === "string" ? source.description : undefined,
+    highlights: asStringArray(source.highlights, []),
+  };
+}
+
+function normalizeCertification(value: unknown, index: number): CertificationItem {
+  const source = isRecord(value) ? value : {};
+  return {
+    id: asString(source.id, `certification-${index + 1}`),
+    title: asString(source.title, "Certification"),
+    issuer: asString(source.issuer, "Issuer"),
+    period: typeof source.period === "string" ? source.period : undefined,
+    credentialUrl: typeof source.credentialUrl === "string" ? source.credentialUrl : undefined,
+    description: typeof source.description === "string" ? source.description : undefined,
+  };
+}
+
+function normalizeNavigation(value: unknown): NavItem[] {
+  const base: NavItem[] = Array.isArray(value)
+    ? value.map((item) => {
+        const source = isRecord(item) ? item : {};
+        const id = source.id;
+        const navId: NavItem["id"] =
+          id === "about" ||
+          id === "experience" ||
+          id === "projects" ||
+          id === "education" ||
+          id === "contact"
+            ? id
+            : "about";
+        return {
+          id: navId,
+          label: asString(source.label, navId),
+          enabled: typeof source.enabled === "boolean" ? source.enabled : true,
+        };
+      })
+    : defaultPortfolioData.navigation;
+
+  if (!base.some((item) => item.id === "experience")) {
+    const aboutIndex = base.findIndex((item) => item.id === "about");
+    const insertAt = aboutIndex >= 0 ? aboutIndex + 1 : base.length;
+    base.splice(insertAt, 0, {
+      id: "experience",
+      label: "Experience",
+      enabled: true,
+    });
+  }
+
+  if (!base.some((item) => item.id === "education")) {
+    const projectsIndex = base.findIndex((item) => item.id === "projects");
+    const insertAt = projectsIndex >= 0 ? projectsIndex + 1 : base.length;
+    base.splice(insertAt, 0, {
+      id: "education",
+      label: "Education",
+      enabled: true,
+    });
+  }
+
+  return base;
+}
+
 export function normalizePortfolioData(input: unknown): PortfolioData {
   const partial = isRecord(input) ? input : {};
   const profileSource = isRecord(partial.profile) ? partial.profile : {};
   const aboutSource = isRecord(partial.about) ? partial.about : {};
+  const experienceSectionSource = isRecord(partial.experienceSection)
+    ? partial.experienceSection
+    : {};
+  const educationCertificationsSectionSource = isRecord(partial.educationCertificationsSection)
+    ? partial.educationCertificationsSection
+    : {};
   const projectsSectionSource = isRecord(partial.projectsSection) ? partial.projectsSection : {};
   const projectsPageSource = isRecord(partial.projectsPage) ? partial.projectsPage : {};
   const contactSource = isRecord(partial.contact) ? partial.contact : {};
@@ -81,8 +204,17 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
   const seoSource = isRecord(partial.seo) ? partial.seo : {};
   const heroButtonsSource = isRecord(partial.heroButtons) ? partial.heroButtons : {};
 
+  const featuredCount =
+    typeof projectsSectionSource.featuredCount === "number"
+      ? Math.max(0, projectsSectionSource.featuredCount)
+      : defaultPortfolioData.projectsSection.featuredCount;
+
+  const projectCategories = normalizeProjectCategories(partial.projectCategories);
+
   const projects = Array.isArray(partial.projects)
-    ? partial.projects.map(normalizeProject)
+    ? partial.projects.map((item, index) =>
+        normalizeProject(item, index, projectCategories, featuredCount)
+      )
     : defaultPortfolioData.projects;
 
   const heroStats = Array.isArray(partial.heroStats)
@@ -95,19 +227,19 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       })
     : defaultPortfolioData.heroStats;
 
-  const navigation: NavItem[] = Array.isArray(partial.navigation)
-    ? partial.navigation.map((item) => {
-        const source = isRecord(item) ? item : {};
-        const id = source.id;
-        const navId: NavItem["id"] =
-          id === "about" || id === "projects" || id === "contact" ? id : "about";
-        return {
-          id: navId,
-          label: asString(source.label, navId),
-          enabled: typeof source.enabled === "boolean" ? source.enabled : true,
-        };
-      })
-    : defaultPortfolioData.navigation;
+  const navigation = normalizeNavigation(partial.navigation);
+
+  const experiences = Array.isArray(partial.experiences)
+    ? partial.experiences.map(normalizeExperience)
+    : defaultPortfolioData.experiences;
+
+  const education = Array.isArray(partial.education)
+    ? partial.education.map(normalizeEducation)
+    : defaultPortfolioData.education;
+
+  const certifications = Array.isArray(partial.certifications)
+    ? partial.certifications.map(normalizeCertification)
+    : defaultPortfolioData.certifications;
 
   const resumes: PortfolioResume[] = Array.isArray(partial.resumes)
     ? partial.resumes
@@ -162,6 +294,37 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       paragraphs: asStringArray(aboutSource.paragraphs, defaultPortfolioData.about.paragraphs),
       achievements: asStringArray(aboutSource.achievements, defaultPortfolioData.about.achievements),
     },
+    experienceSection: {
+      heading: asString(
+        experienceSectionSource.heading,
+        defaultPortfolioData.experienceSection.heading
+      ),
+      subtext: asString(
+        experienceSectionSource.subtext,
+        defaultPortfolioData.experienceSection.subtext
+      ),
+    },
+    experiences,
+    educationCertificationsSection: {
+      heading: asString(
+        educationCertificationsSectionSource.heading,
+        defaultPortfolioData.educationCertificationsSection.heading
+      ),
+      subtext: asString(
+        educationCertificationsSectionSource.subtext,
+        defaultPortfolioData.educationCertificationsSection.subtext
+      ),
+      educationHeading: asString(
+        educationCertificationsSectionSource.educationHeading,
+        defaultPortfolioData.educationCertificationsSection.educationHeading
+      ),
+      certificationsHeading: asString(
+        educationCertificationsSectionSource.certificationsHeading,
+        defaultPortfolioData.educationCertificationsSection.certificationsHeading
+      ),
+    },
+    education,
+    certifications,
     projectsSection: {
       heading: asString(
         projectsSectionSource.heading,
@@ -175,10 +338,7 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
         projectsSectionSource.viewAllLabel,
         defaultPortfolioData.projectsSection.viewAllLabel
       ),
-      featuredCount:
-        typeof projectsSectionSource.featuredCount === "number"
-          ? Math.max(0, projectsSectionSource.featuredCount)
-          : defaultPortfolioData.projectsSection.featuredCount,
+      featuredCount,
     },
     projectsPage: {
       title: asString(projectsPageSource.title, defaultPortfolioData.projectsPage.title),
@@ -187,7 +347,9 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
         projectsPageSource.description,
         defaultPortfolioData.projectsPage.description
       ),
+      allLabel: asString(projectsPageSource.allLabel, defaultPortfolioData.projectsPage.allLabel),
     },
+    projectCategories,
     projects,
     resumes: normalizedResumes,
     contact: {
@@ -225,10 +387,18 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
         typeof sectionsSource.aboutCard === "boolean"
           ? sectionsSource.aboutCard
           : defaultPortfolioData.sections.aboutCard,
+      experience:
+        typeof sectionsSource.experience === "boolean"
+          ? sectionsSource.experience
+          : defaultPortfolioData.sections.experience,
       projects:
         typeof sectionsSource.projects === "boolean"
           ? sectionsSource.projects
           : defaultPortfolioData.sections.projects,
+      education:
+        typeof sectionsSource.education === "boolean"
+          ? sectionsSource.education
+          : defaultPortfolioData.sections.education,
       contact:
         typeof sectionsSource.contact === "boolean"
           ? sectionsSource.contact

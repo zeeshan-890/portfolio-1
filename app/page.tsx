@@ -4,6 +4,7 @@ import PortfolioNavObserver from "./components/PortfolioNavObserver";
 import ResumePickerButton from "./components/ResumePickerButton";
 import type { PortfolioProject } from "./data/portfolioTypes";
 import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
+import { getProjectCategoryLabel } from "./lib/projectUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -50,27 +51,7 @@ function getProjectSecondaryLinks(project: PortfolioProject) {
   return links;
 }
 
-function categoryIcon(category: PortfolioProject["category"]) {
-  if (category === "Backend") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
-        <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
-        <line x1="6" x2="6.01" y1="6" y2="6" />
-        <line x1="6" x2="6.01" y1="18" y2="18" />
-      </svg>
-    );
-  }
-
-  if (category === "Mobile") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
-        <path d="M12 18h.01" />
-      </svg>
-    );
-  }
-
+function projectIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <polyline points="16 18 22 12 16 6" />
@@ -93,7 +74,7 @@ function getSkillsLayout(count: number) {
 
 export default async function Home() {
   const data = await getPortfolioData();
-  const { profile, heroStats, skills, about, contact, projectsSection, sections, navigation, resumes } =
+  const { profile, heroStats, skills, about, contact, experienceSection, experiences, educationCertificationsSection, education, certifications, projectsSection, projectCategories, sections, navigation, resumes } =
     data;
   const featuredProjects = getFeaturedProjects(data);
   const enabledNav = navigation.filter((item) => item.enabled);
@@ -147,6 +128,22 @@ export default async function Home() {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                 )}
+                {item.id === "experience" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    <rect width="20" height="14" x="2" y="6" rx="2" />
+                  </svg>
+                )}
                 {item.id === "projects" && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -161,6 +158,22 @@ export default async function Home() {
                   >
                     <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                     <rect width="20" height="14" x="2" y="6" rx="2" />
+                  </svg>
+                )}
+                {item.id === "education" && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" />
                   </svg>
                 )}
                 {item.id === "contact" && (
@@ -382,6 +395,62 @@ export default async function Home() {
           </div>
           )}
 
+          {sections.experience && experiences.length > 0 && (
+          <section id="experience" itemScope itemType="https://schema.org/ItemList">
+            <div className="experience-wrap">
+              <div className="experience-intro scroll-reveal animate-fade-in-up revealed">
+                <h2 className="experience-heading" itemProp="name">
+                  {experienceSection.heading}
+                </h2>
+                <p className="experience-subtext animate-fade-in-left" itemProp="description">
+                  {experienceSection.subtext}
+                </p>
+              </div>
+
+              <div className="experience-timeline">
+                {experiences.map((item, index) => (
+                  <article
+                    key={item.id}
+                    className="experience-card glass-card hover-lift hover-shine scroll-reveal revealed"
+                    itemScope
+                    itemType="https://schema.org/OrganizationRole"
+                    itemProp="itemListElement"
+                  >
+                    <div className="experience-marker">
+                      <span className="experience-marker-dot" />
+                      {index < experiences.length - 1 && <span className="experience-marker-line" />}
+                    </div>
+                    <div className="experience-content">
+                      <div className="experience-meta">
+                        <span className="experience-period">{item.period}</span>
+                        {item.location && (
+                          <span className="experience-location">{item.location}</span>
+                        )}
+                      </div>
+                      <h3 className="experience-role" itemProp="roleName">
+                        {item.role}
+                      </h3>
+                      <p className="experience-company" itemProp="name">
+                        {item.company}
+                      </p>
+                      <p className="experience-description" itemProp="description">
+                        {item.description}
+                      </p>
+                      {item.highlights.length > 0 && (
+                        <ul className="experience-highlights">
+                          {item.highlights.map((highlight) => (
+                            <li key={highlight}>{highlight}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+          )}
+
           {sections.projects && (
           <section id="projects" itemScope itemType="https://schema.org/ItemList">
             <div className="sr-only" aria-hidden="true">
@@ -441,9 +510,9 @@ export default async function Home() {
                       <div className="project-glow" />
                       <div className="project-glow-inner">
                         <div className="project-head">
-                          <div className="project-icon-box">{categoryIcon(project.category)}</div>
+                          <div className="project-icon-box">{projectIcon()}</div>
                           <span className="project-genre" itemProp="genre">
-                            {project.category}
+                            {getProjectCategoryLabel(project, projectCategories)}
                           </span>
                           <h3 className="project-name" itemProp="name">
                             {project.title}
@@ -461,14 +530,6 @@ export default async function Home() {
                             ))}
                           </div>
                           <div className="project-actions-modern">
-                            <a className="project-action-btn primary" href={`/projects#${project.id}`}>
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M15 3h6v6" />
-                                <path d="M10 14 21 3" />
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                              </svg>
-                              View Details
-                            </a>
                             {secondaryLinks.slice(0, 2).map((link) => (
                               <a
                                 key={`${project.id}-${link.label}`}
@@ -491,6 +552,97 @@ export default async function Home() {
                     </article>
                   );
                 })}
+              </div>
+            </div>
+          </section>
+          )}
+
+          {sections.education && (education.length > 0 || certifications.length > 0) && (
+          <section id="education">
+            <div className="edu-cert-wrap">
+              <div className="edu-cert-intro scroll-reveal animate-fade-in-up revealed">
+                <h2 className="edu-cert-heading">{educationCertificationsSection.heading}</h2>
+                <p className="edu-cert-subtext">{educationCertificationsSection.subtext}</p>
+              </div>
+
+              <div className="edu-cert-columns">
+                <div className="edu-cert-column">
+                  <h3 className="edu-cert-column-heading">
+                    {educationCertificationsSection.educationHeading}
+                  </h3>
+                  <div className="edu-cert-list">
+                    {education.map((item) => (
+                      <article
+                        key={item.id}
+                        className="edu-cert-card glass-card hover-lift hover-shine scroll-reveal revealed"
+                        itemScope
+                        itemType="https://schema.org/EducationalOccupationalCredential"
+                      >
+                        <div className="edu-cert-meta">
+                          <span className="edu-cert-period">{item.period}</span>
+                          {item.location && (
+                            <span className="edu-cert-location">{item.location}</span>
+                          )}
+                        </div>
+                        <h4 className="edu-cert-title" itemProp="name">
+                          {item.degree}
+                        </h4>
+                        <p className="edu-cert-subtitle" itemProp="credentialCategory">
+                          {item.institution}
+                        </p>
+                        {item.description && (
+                          <p className="edu-cert-description">{item.description}</p>
+                        )}
+                        {item.highlights.length > 0 && (
+                          <ul className="edu-cert-highlights">
+                            {item.highlights.map((highlight) => (
+                              <li key={`${item.id}-${highlight}`}>{highlight}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="edu-cert-column">
+                  <h3 className="edu-cert-column-heading">
+                    {educationCertificationsSection.certificationsHeading}
+                  </h3>
+                  <div className="edu-cert-list">
+                    {certifications.map((item) => (
+                      <article
+                        key={item.id}
+                        className="edu-cert-card glass-card hover-lift hover-shine scroll-reveal revealed"
+                        itemScope
+                        itemType="https://schema.org/Certification"
+                      >
+                        <div className="edu-cert-meta">
+                          {item.period && <span className="edu-cert-period">{item.period}</span>}
+                        </div>
+                        <h4 className="edu-cert-title" itemProp="name">
+                          {item.credentialUrl ? (
+                            <a
+                              href={item.credentialUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item.title}
+                            </a>
+                          ) : (
+                            item.title
+                          )}
+                        </h4>
+                        <p className="edu-cert-subtitle" itemProp="recognizedBy">
+                          {item.issuer}
+                        </p>
+                        {item.description && (
+                          <p className="edu-cert-description">{item.description}</p>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </section>

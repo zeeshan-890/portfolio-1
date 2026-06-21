@@ -50,6 +50,92 @@ export const defaultPortfolioData: PortfolioData = {
       "24/7 learning mode",
     ],
   },
+  experienceSection: {
+    heading: "Experience",
+    subtext:
+      "Professional journey across internships, freelance work, and product-focused engineering roles.",
+  },
+  experiences: [
+    {
+      id: "freelance-fullstack",
+      role: "Freelance Full Stack Developer",
+      company: "Self-employed",
+      period: "2024 – Present",
+      location: "Remote",
+      description:
+        "Building production-ready web applications for clients using React, Next.js, Node.js, and MongoDB.",
+      highlights: [
+        "Delivered 7+ full-stack projects from design to deployment",
+        "Integrated payments, auth, and real-time features",
+      ],
+    },
+    {
+      id: "nust-ai-student",
+      role: "BSc Artificial Intelligence",
+      company: "NUST",
+      period: "2022 – Present",
+      location: "Islamabad, Pakistan",
+      description:
+        "Studying AI fundamentals while applying software engineering through MERN stack projects and coursework.",
+      highlights: [
+        "Focused on web development, databases, and applied AI",
+        "Built academic and personal projects with modern tooling",
+      ],
+    },
+  ],
+  educationCertificationsSection: {
+    heading: "Education & Certifications",
+    subtext:
+      "Academic background and professional credentials that support my work in software engineering and AI.",
+    educationHeading: "Education",
+    certificationsHeading: "Certifications",
+  },
+  education: [
+    {
+      id: "nust-bsc-ai",
+      degree: "BSc Artificial Intelligence",
+      institution: "National University of Sciences and Technology (NUST)",
+      period: "2022 – Present",
+      location: "Islamabad, Pakistan",
+      description:
+        "Studying AI fundamentals, software engineering, databases, and applied machine learning.",
+      highlights: [
+        "Coursework in web development, data structures, and AI systems",
+        "Built academic and personal projects with modern MERN tooling",
+      ],
+    },
+    {
+      id: "fsc-pre-engineering",
+      degree: "FSc Pre-Engineering",
+      institution: "Local College",
+      period: "2020 – 2022",
+      location: "Pakistan",
+      highlights: ["Mathematics, Physics, and Computer Science focus"],
+    },
+  ],
+  certifications: [
+    {
+      id: "meta-front-end",
+      title: "Meta Front-End Developer Professional Certificate",
+      issuer: "Meta / Coursera",
+      period: "2024",
+      description: "React, JavaScript, HTML/CSS, and responsive UI development.",
+    },
+    {
+      id: "google-it-automation",
+      title: "Google IT Automation with Python",
+      issuer: "Google / Coursera",
+      period: "2023",
+      description: "Python scripting, Git, troubleshooting, and automation workflows.",
+    },
+    {
+      id: "freecodecamp-responsive",
+      title: "Responsive Web Design",
+      issuer: "freeCodeCamp",
+      period: "2023",
+      credentialUrl: "https://www.freecodecamp.org",
+    },
+  ],
   projectsSection: {
     heading: "Latest Projects",
     subtext:
@@ -62,7 +148,14 @@ export const defaultPortfolioData: PortfolioData = {
     heading: "Complete Portfolio",
     description:
       "Explore the complete collection of {name}'s projects across full-stack systems, AI-first products, and frontend applications.",
+    allLabel: "All",
   },
+  projectCategories: [
+    { id: "full-stack", label: "Full Stack" },
+    { id: "web-app", label: "Web App" },
+    { id: "gen-ai", label: "Gen AI" },
+    { id: "agentic-ai", label: "Agentic AI" },
+  ],
   projects: [
     {
       id: "viralix-ai-platform",
@@ -79,7 +172,8 @@ export const defaultPortfolioData: PortfolioData = {
         "Google Gemini AI",
         "Meta Graph API",
       ],
-      category: "Full Stack",
+      categoryId: "gen-ai",
+      showOnHomepage: true,
       liveUrl: "www.viralix.dev/",
     },
     {
@@ -97,7 +191,8 @@ export const defaultPortfolioData: PortfolioData = {
         "Cloudinary",
         "JWT",
       ],
-      category: "Full Stack",
+      categoryId: "full-stack",
+      showOnHomepage: true,
       liveUrl: "https://handphone.app.zeeshan-abbas.tech/",
       githubUrl: "https://github.com/zeeshan-890/handphone",
     },
@@ -116,7 +211,8 @@ export const defaultPortfolioData: PortfolioData = {
         "MongoDB",
         "Docker",
       ],
-      category: "Full Stack",
+      categoryId: "full-stack",
+      showOnHomepage: true,
       liveUrl: "https://converza.app.zeeshan-abbas.tech",
       githubUrl: "https://github.com/zeeshan-890/Chat-App",
     },
@@ -134,7 +230,8 @@ export const defaultPortfolioData: PortfolioData = {
         "MySQL",
         "Maven",
       ],
-      category: "Full Stack",
+      categoryId: "full-stack",
+      showOnHomepage: true,
       liveUrl:
         "https://drive.google.com/file/d/1_LwV-QvoZtN-33BFwwXDd1KQW6JqiFhM/view?usp=sharing",
       githubUrl: "https://github.com/zeeshan-890/RHMS",
@@ -145,7 +242,8 @@ export const defaultPortfolioData: PortfolioData = {
       shortDescription:
         "Internship lifecycle platform for NUST students with application tracking, document management, and coordinator workflows.",
       technologies: ["JavaScript", "HTML", "CSS3", "Java", "Spring Boot"],
-      category: "Full Stack",
+      categoryId: "full-stack",
+      showOnHomepage: true,
       githubUrl: "https://github.com/zeeshan-890/Nust-Internship-Mangement-System",
     },
     {
@@ -154,7 +252,8 @@ export const defaultPortfolioData: PortfolioData = {
       shortDescription:
         "Weather app with real-time conditions, forecasts, and location search powered by OpenWeatherMap API.",
       technologies: ["HTML", "CSS", "JavaScript", "OpenWeatherMap API"],
-      category: "Frontend",
+      categoryId: "web-app",
+      showOnHomepage: true,
       liveUrl: "https://weather-app-five-sooty-22.vercel.app/",
       githubUrl: "https://github.com/zeeshan-890/weather--app",
     },
@@ -164,7 +263,8 @@ export const defaultPortfolioData: PortfolioData = {
       shortDescription:
         "Currency conversion app with live exchange rates, historical comparisons, and support for major world currencies.",
       technologies: ["HTML", "CSS", "JavaScript", "Currency Exchange API"],
-      category: "Frontend",
+      categoryId: "web-app",
+      showOnHomepage: false,
       liveUrl: "https://currency-converter-tawny-phi.vercel.app/",
       githubUrl: "https://github.com/zeeshan-890/currency-Converter",
     },
@@ -183,7 +283,8 @@ export const defaultPortfolioData: PortfolioData = {
         "MongoDB",
         "Recharts",
       ],
-      category: "Full Stack",
+      categoryId: "full-stack",
+      showOnHomepage: false,
       liveUrl: "https://financer.app.zeeshan-abbas.tech/",
       githubUrl: "https://github.com/zeeshan-890/financer",
     },
@@ -205,14 +306,18 @@ export const defaultPortfolioData: PortfolioData = {
   },
   navigation: [
     { id: "about", label: "About Me", enabled: true },
+    { id: "experience", label: "Experience", enabled: true },
     { id: "projects", label: "Projects", enabled: true },
+    { id: "education", label: "Education", enabled: true },
     { id: "contact", label: "Contact", enabled: true },
   ],
   sections: {
     hero: true,
     skills: true,
     aboutCard: true,
+    experience: true,
     projects: true,
+    education: true,
     contact: true,
   },
   seo: {

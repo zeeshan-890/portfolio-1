@@ -2,8 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { PortfolioData, PortfolioProject } from "@/app/data/portfolioTypes";
+import type {
+  CertificationItem,
+  EducationItem,
+  ExperienceItem,
+  PortfolioData,
+  PortfolioProject,
+} from "@/app/data/portfolioTypes";
+
 import {
+  CertificationEditor,
+  EducationEditor,
+  ExperienceEditor,
+  ProjectCategoryListEditor,
   ProjectEditor,
   StatListEditor,
   StringListEditor,
@@ -19,7 +30,9 @@ const TABS = [
   { id: "hero", label: "Hero & Stats" },
   { id: "skills", label: "Skills" },
   { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
   { id: "projects", label: "Projects" },
+  { id: "education", label: "Education" },
   { id: "contact", label: "Contact" },
   { id: "navigation", label: "Navigation" },
   { id: "sections", label: "Sections" },
@@ -28,12 +41,30 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+function createSlugId(title: string, prefix: string): string {
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 48) || `${prefix}-${Date.now()}`
+  );
+}
+
 function createProjectId(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48) || `project-${Date.now()}`;
+  return createSlugId(title, "project");
+}
+
+function createExperienceId(role: string): string {
+  return createSlugId(role, "experience");
+}
+
+function createEducationId(degree: string): string {
+  return createSlugId(degree, "education");
+}
+
+function createCertificationId(title: string): string {
+  return createSlugId(title, "certification");
 }
 
 export default function AdminDashboard() {
@@ -110,14 +141,78 @@ export default function AdminDashboard() {
   }
 
   function addProject() {
+    const defaultCategoryId = data?.projectCategories[0]?.id ?? "full-stack";
     const newProject: PortfolioProject = {
       id: `new-project-${Date.now()}`,
       title: "New Project",
       shortDescription: "",
       technologies: [],
-      category: "Full Stack",
+      categoryId: defaultCategoryId,
+      showOnHomepage: false,
     };
     update((prev) => ({ ...prev, projects: [...prev.projects, newProject] }));
+  }
+
+  function moveExperience(index: number, direction: -1 | 1) {
+    update((prev) => {
+      const next = [...prev.experiences];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, experiences: next };
+    });
+  }
+
+  function addExperience() {
+    const newExperience: ExperienceItem = {
+      id: `new-experience-${Date.now()}`,
+      role: "New Role",
+      company: "",
+      period: "",
+      description: "",
+      highlights: [],
+    };
+    update((prev) => ({ ...prev, experiences: [...prev.experiences, newExperience] }));
+  }
+
+  function moveEducation(index: number, direction: -1 | 1) {
+    update((prev) => {
+      const next = [...prev.education];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, education: next };
+    });
+  }
+
+  function addEducation() {
+    const newEducation: EducationItem = {
+      id: `new-education-${Date.now()}`,
+      degree: "New Degree",
+      institution: "",
+      period: "",
+      highlights: [],
+    };
+    update((prev) => ({ ...prev, education: [...prev.education, newEducation] }));
+  }
+
+  function moveCertification(index: number, direction: -1 | 1) {
+    update((prev) => {
+      const next = [...prev.certifications];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, certifications: next };
+    });
+  }
+
+  function addCertification() {
+    const newCertification: CertificationItem = {
+      id: `new-certification-${Date.now()}`,
+      title: "New Certification",
+      issuer: "",
+    };
+    update((prev) => ({ ...prev, certifications: [...prev.certifications, newCertification] }));
   }
 
   if (loading) {
@@ -144,7 +239,9 @@ export default function AdminDashboard() {
     hero: "Hero & Stats",
     skills: "Skills",
     about: "About",
+    experience: "Experience",
     projects: "Projects",
+    education: "Education",
     contact: "Contact",
     navigation: "Navigation",
     sections: "Section Visibility",
@@ -399,6 +496,73 @@ export default function AdminDashboard() {
             </>
           )}
 
+          {tab === "experience" && (
+            <>
+              <div className="admin-panel">
+                <h3>Experience Section</h3>
+                <div className="admin-grid">
+                  <TextField
+                    label="Section Heading"
+                    value={data.experienceSection.heading}
+                    onChange={(heading) =>
+                      update((p) => ({
+                        ...p,
+                        experienceSection: { ...p.experienceSection, heading },
+                      }))
+                    }
+                  />
+                  <TextAreaField
+                    label="Section Subtext"
+                    value={data.experienceSection.subtext}
+                    onChange={(subtext) =>
+                      update((p) => ({
+                        ...p,
+                        experienceSection: { ...p.experienceSection, subtext },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="admin-panel">
+                <div className="admin-list-item-header">
+                  <h3>Experience Entries ({data.experiences.length})</h3>
+                  <button type="button" className="admin-btn admin-btn-primary" onClick={addExperience}>
+                    + Add Experience
+                  </button>
+                </div>
+                {data.experiences.length === 0 ? (
+                  <p className="admin-empty">No experience entries yet. Add your first one above.</p>
+                ) : (
+                  data.experiences.map((experience, index) => (
+                    <ExperienceEditor
+                      key={`${experience.id}-${index}`}
+                      experience={experience}
+                      index={index}
+                      onChange={(updated) => {
+                        const next = [...data.experiences];
+                        if (updated.role !== experience.role && updated.id.startsWith("new-experience-")) {
+                          updated.id = createExperienceId(updated.role);
+                        }
+                        next[index] = updated;
+                        update((p) => ({ ...p, experiences: next }));
+                      }}
+                      onRemove={() =>
+                        update((p) => ({
+                          ...p,
+                          experiences: p.experiences.filter((_, i) => i !== index),
+                        }))
+                      }
+                      onMoveUp={() => moveExperience(index, -1)}
+                      onMoveDown={() => moveExperience(index, 1)}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < data.experiences.length - 1}
+                    />
+                  ))
+                )}
+              </div>
+            </>
+          )}
+
           {tab === "projects" && (
             <>
               <div className="admin-panel">
@@ -424,20 +588,6 @@ export default function AdminDashboard() {
                       }))
                     }
                   />
-                  <TextField
-                    label="Featured Count (homepage)"
-                    type="number"
-                    value={String(data.projectsSection.featuredCount)}
-                    onChange={(v) =>
-                      update((p) => ({
-                        ...p,
-                        projectsSection: {
-                          ...p.projectsSection,
-                          featuredCount: Math.max(0, parseInt(v, 10) || 0),
-                        },
-                      }))
-                    }
-                  />
                   <TextAreaField
                     label="Section Subtext"
                     value={data.projectsSection.subtext}
@@ -450,6 +600,23 @@ export default function AdminDashboard() {
                   />
                 </div>
               </div>
+              <ProjectCategoryListEditor
+                categories={data.projectCategories}
+                onChange={(projectCategories) => {
+                  update((prev) => {
+                    const fallbackCategoryId = projectCategories[0]?.id ?? prev.projectCategories[0]?.id;
+                    const validIds = new Set(projectCategories.map((category) => category.id));
+                    const projects = prev.projects.map((project) => ({
+                      ...project,
+                      categoryId: validIds.has(project.categoryId)
+                        ? project.categoryId
+                        : fallbackCategoryId ?? project.categoryId,
+                    }));
+
+                    return { ...prev, projectCategories, projects };
+                  });
+                }}
+              />
               <div className="admin-panel">
                 <h3>All Projects Page</h3>
                 <div className="admin-grid">
@@ -465,6 +632,13 @@ export default function AdminDashboard() {
                     value={data.projectsPage.heading}
                     onChange={(heading) =>
                       update((p) => ({ ...p, projectsPage: { ...p.projectsPage, heading } }))
+                    }
+                  />
+                  <TextField
+                    label="All Filter Label"
+                    value={data.projectsPage.allLabel}
+                    onChange={(allLabel) =>
+                      update((p) => ({ ...p, projectsPage: { ...p.projectsPage, allLabel } }))
                     }
                   />
                   <TextAreaField
@@ -490,6 +664,7 @@ export default function AdminDashboard() {
                     <ProjectEditor
                       key={`${project.id}-${index}`}
                       project={project}
+                      categories={data.projectCategories}
                       index={index}
                       onChange={(updated) => {
                         const next = [...data.projects];
@@ -509,6 +684,149 @@ export default function AdminDashboard() {
                       onMoveDown={() => moveProject(index, 1)}
                       canMoveUp={index > 0}
                       canMoveDown={index < data.projects.length - 1}
+                    />
+                  ))
+                )}
+              </div>
+            </>
+          )}
+
+          {tab === "education" && (
+            <>
+              <div className="admin-panel">
+                <h3>Education & Certifications Section</h3>
+                <div className="admin-grid">
+                  <TextField
+                    label="Section Heading"
+                    value={data.educationCertificationsSection.heading}
+                    onChange={(heading) =>
+                      update((p) => ({
+                        ...p,
+                        educationCertificationsSection: {
+                          ...p.educationCertificationsSection,
+                          heading,
+                        },
+                      }))
+                    }
+                  />
+                  <TextField
+                    label="Education Column Heading"
+                    value={data.educationCertificationsSection.educationHeading}
+                    onChange={(educationHeading) =>
+                      update((p) => ({
+                        ...p,
+                        educationCertificationsSection: {
+                          ...p.educationCertificationsSection,
+                          educationHeading,
+                        },
+                      }))
+                    }
+                  />
+                  <TextField
+                    label="Certifications Column Heading"
+                    value={data.educationCertificationsSection.certificationsHeading}
+                    onChange={(certificationsHeading) =>
+                      update((p) => ({
+                        ...p,
+                        educationCertificationsSection: {
+                          ...p.educationCertificationsSection,
+                          certificationsHeading,
+                        },
+                      }))
+                    }
+                  />
+                  <TextAreaField
+                    label="Section Subtext"
+                    value={data.educationCertificationsSection.subtext}
+                    onChange={(subtext) =>
+                      update((p) => ({
+                        ...p,
+                        educationCertificationsSection: {
+                          ...p.educationCertificationsSection,
+                          subtext,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="admin-panel">
+                <div className="admin-list-item-header">
+                  <h3>Education ({data.education.length})</h3>
+                  <button type="button" className="admin-btn admin-btn-primary" onClick={addEducation}>
+                    + Add Education
+                  </button>
+                </div>
+                {data.education.length === 0 ? (
+                  <p className="admin-empty">No education entries yet.</p>
+                ) : (
+                  data.education.map((item, index) => (
+                    <EducationEditor
+                      key={`${item.id}-${index}`}
+                      education={item}
+                      index={index}
+                      onChange={(updated) => {
+                        const next = [...data.education];
+                        if (updated.degree !== item.degree && updated.id.startsWith("new-education-")) {
+                          updated.id = createEducationId(updated.degree);
+                        }
+                        next[index] = updated;
+                        update((p) => ({ ...p, education: next }));
+                      }}
+                      onRemove={() =>
+                        update((p) => ({
+                          ...p,
+                          education: p.education.filter((_, i) => i !== index),
+                        }))
+                      }
+                      onMoveUp={() => moveEducation(index, -1)}
+                      onMoveDown={() => moveEducation(index, 1)}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < data.education.length - 1}
+                    />
+                  ))
+                )}
+              </div>
+              <div className="admin-panel">
+                <div className="admin-list-item-header">
+                  <h3>Certifications ({data.certifications.length})</h3>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-primary"
+                    onClick={addCertification}
+                  >
+                    + Add Certification
+                  </button>
+                </div>
+                {data.certifications.length === 0 ? (
+                  <p className="admin-empty">No certifications yet.</p>
+                ) : (
+                  data.certifications.map((item, index) => (
+                    <CertificationEditor
+                      key={`${item.id}-${index}`}
+                      certification={item}
+                      index={index}
+                      onChange={(updated) => {
+                        const next = [...data.certifications];
+                        if (
+                          updated.title !== item.title &&
+                          updated.id.startsWith("new-certification-")
+                        ) {
+                          updated.id = createCertificationId(updated.title);
+                        }
+                        next[index] = updated;
+                        update((p) => ({ ...p, certifications: next }));
+                      }}
+                      onRemove={() =>
+                        update((p) => ({
+                          ...p,
+                          certifications: p.certifications.filter((_, i) => i !== index),
+                        }))
+                      }
+                      onMoveUp={() => moveCertification(index, -1)}
+                      onMoveDown={() => moveCertification(index, 1)}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < data.certifications.length - 1}
                     />
                   ))
                 )}
@@ -638,10 +956,24 @@ export default function AdminDashboard() {
                 }
               />
               <ToggleField
+                label="Experience Section"
+                checked={data.sections.experience}
+                onChange={(experience) =>
+                  update((p) => ({ ...p, sections: { ...p.sections, experience } }))
+                }
+              />
+              <ToggleField
                 label="Projects Section"
                 checked={data.sections.projects}
                 onChange={(projects) =>
                   update((p) => ({ ...p, sections: { ...p.sections, projects } }))
+                }
+              />
+              <ToggleField
+                label="Education & Certifications Section"
+                checked={data.sections.education}
+                onChange={(education) =>
+                  update((p) => ({ ...p, sections: { ...p.sections, education } }))
                 }
               />
               <ToggleField

@@ -382,6 +382,13 @@
   text-align: center;
 }
 
+.admin-help-text {
+  color: #888;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: -4px 0 16px;
+}
+
 .admin-upload-field {
   gap: 10px;
 }

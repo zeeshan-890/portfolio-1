@@ -18,7 +18,6 @@ export const skills = defaultPortfolioData.skills;
 export const aboutParagraphs = defaultPortfolioData.about.paragraphs;
 export const achievements = defaultPortfolioData.about.achievements;
 export const projects = defaultPortfolioData.projects;
-export const featuredProjects = defaultPortfolioData.projects.slice(
-  0,
-  defaultPortfolioData.projectsSection.featuredCount
+export const featuredProjects = defaultPortfolioData.projects.filter(
+  (project) => project.showOnHomepage
 );

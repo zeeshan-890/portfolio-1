@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { PortfolioData, PortfolioProject } from "@/app/data/portfolioTypes";
+import type {
+  CertificationItem,
+  EducationItem,
+  ExperienceItem,
+  PortfolioData,
+  PortfolioProject,
+  ProjectCategory,
+} from "@/app/data/portfolioTypes";
 
 type FieldProps = {
   label: string;
@@ -115,6 +122,7 @@ export function TagInput({ label, tags, onChange }: TagInputProps) {
 
 type ProjectEditorProps = {
   project: PortfolioProject;
+  categories: ProjectCategory[];
   index: number;
   onChange: (project: PortfolioProject) => void;
   onRemove: () => void;
@@ -126,6 +134,7 @@ type ProjectEditorProps = {
 
 export function ProjectEditor({
   project,
+  categories,
   index,
   onChange,
   onRemove,
@@ -166,20 +175,21 @@ export function ProjectEditor({
         <div className="admin-field">
           <label>Category</label>
           <select
-            value={project.category}
-            onChange={(e) =>
-              onChange({
-                ...project,
-                category: e.target.value as PortfolioProject["category"],
-              })
-            }
+            value={project.categoryId}
+            onChange={(e) => onChange({ ...project, categoryId: e.target.value })}
           >
-            <option value="Full Stack">Full Stack</option>
-            <option value="Frontend">Frontend</option>
-            <option value="Backend">Backend</option>
-            <option value="Mobile">Mobile</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>
+            ))}
           </select>
         </div>
+        <ToggleField
+          label="Show on homepage"
+          checked={project.showOnHomepage}
+          onChange={(showOnHomepage) => onChange({ ...project, showOnHomepage })}
+        />
         <TextField
           label="Live URL"
           value={project.liveUrl ?? ""}
@@ -221,6 +231,98 @@ export function ProjectEditor({
           onChange={(technologies) => onChange({ ...project, technologies })}
         />
       </div>
+    </div>
+  );
+}
+
+type ProjectCategoryListEditorProps = {
+  categories: ProjectCategory[];
+  onChange: (categories: ProjectCategory[]) => void;
+};
+
+export function ProjectCategoryListEditor({ categories, onChange }: ProjectCategoryListEditorProps) {
+  function moveCategory(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= categories.length) {
+      return;
+    }
+
+    const next = [...categories];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  }
+
+  return (
+    <div className="admin-panel">
+      <h3>Project Categories</h3>
+      <p className="admin-help-text">
+        Used for filtering on the All Projects page and as tags on homepage project cards.
+      </p>
+      {categories.map((category, index) => (
+        <div key={`${category.id}-${index}`} className="admin-list-item">
+          <div className="admin-list-item-header">
+            <h4>Category {index + 1}</h4>
+            <div className="admin-actions">
+              <button
+                type="button"
+                className="admin-btn"
+                onClick={() => moveCategory(index, -1)}
+                disabled={index === 0}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className="admin-btn"
+                onClick={() => moveCategory(index, 1)}
+                disabled={index === categories.length - 1}
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                className="admin-btn admin-btn-danger"
+                onClick={() => onChange(categories.filter((_, i) => i !== index))}
+                disabled={categories.length <= 1}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          <div className="admin-grid">
+            <TextField
+              label="ID (slug)"
+              value={category.id}
+              onChange={(id) => {
+                const next = [...categories];
+                next[index] = { ...category, id };
+                onChange(next);
+              }}
+            />
+            <TextField
+              label="Label"
+              value={category.label}
+              onChange={(label) => {
+                const next = [...categories];
+                next[index] = { ...category, label };
+                onChange(next);
+              }}
+            />
+          </div>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="admin-btn"
+        onClick={() =>
+          onChange([
+            ...categories,
+            { id: `category-${Date.now()}`, label: "New Category" },
+          ])
+        }
+      >
+        + Add Category
+      </button>
     </div>
   );
 }
@@ -323,6 +425,250 @@ export function StatListEditor({ stats, onChange }: StatListEditorProps) {
       >
         + Add Stat
       </button>
+    </div>
+  );
+}
+
+type ExperienceEditorProps = {
+  experience: ExperienceItem;
+  index: number;
+  onChange: (experience: ExperienceItem) => void;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+};
+
+export function ExperienceEditor({
+  experience,
+  index,
+  onChange,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+}: ExperienceEditorProps) {
+  return (
+    <div className="admin-list-item">
+      <div className="admin-list-item-header">
+        <h4>
+          #{index + 1} — {experience.role || "Untitled Role"}
+          {experience.company ? ` @ ${experience.company}` : ""}
+        </h4>
+        <div className="admin-actions">
+          <button type="button" className="admin-btn" onClick={onMoveUp} disabled={!canMoveUp}>
+            ↑
+          </button>
+          <button type="button" className="admin-btn" onClick={onMoveDown} disabled={!canMoveDown}>
+            ↓
+          </button>
+          <button type="button" className="admin-btn admin-btn-danger" onClick={onRemove}>
+            Delete
+          </button>
+        </div>
+      </div>
+      <div className="admin-grid">
+        <TextField
+          label="ID (slug)"
+          value={experience.id}
+          onChange={(id) => onChange({ ...experience, id })}
+        />
+        <TextField
+          label="Role / Title"
+          value={experience.role}
+          onChange={(role) => onChange({ ...experience, role })}
+        />
+        <TextField
+          label="Company"
+          value={experience.company}
+          onChange={(company) => onChange({ ...experience, company })}
+        />
+        <TextField
+          label="Period"
+          value={experience.period}
+          onChange={(period) => onChange({ ...experience, period })}
+          placeholder="2024 – Present"
+        />
+        <TextField
+          label="Location"
+          value={experience.location ?? ""}
+          onChange={(location) => onChange({ ...experience, location: location || undefined })}
+        />
+        <TextAreaField
+          label="Description"
+          value={experience.description}
+          onChange={(description) => onChange({ ...experience, description })}
+        />
+        <StringListEditor
+          label="Highlights"
+          items={experience.highlights}
+          onChange={(highlights) => onChange({ ...experience, highlights })}
+          itemLabel="Highlight"
+        />
+      </div>
+    </div>
+  );
+}
+
+type EducationEditorProps = {
+  education: EducationItem;
+  index: number;
+  onChange: (education: EducationItem) => void;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+};
+
+export function EducationEditor({
+  education,
+  index,
+  onChange,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+}: EducationEditorProps) {
+  return (
+    <div className="admin-list-item">
+      <div className="admin-list-item-header">
+        <h4>
+          #{index + 1} — {education.degree || "Untitled Degree"}
+        </h4>
+        <div className="admin-actions">
+          <button type="button" className="admin-btn" onClick={onMoveUp} disabled={!canMoveUp}>
+            ↑
+          </button>
+          <button type="button" className="admin-btn" onClick={onMoveDown} disabled={!canMoveDown}>
+            ↓
+          </button>
+          <button type="button" className="admin-btn admin-btn-danger" onClick={onRemove}>
+            Delete
+          </button>
+        </div>
+      </div>
+      <div className="admin-grid">
+        <TextField
+          label="ID (slug)"
+          value={education.id}
+          onChange={(id) => onChange({ ...education, id })}
+        />
+        <TextField
+          label="Degree / Program"
+          value={education.degree}
+          onChange={(degree) => onChange({ ...education, degree })}
+        />
+        <TextField
+          label="Institution"
+          value={education.institution}
+          onChange={(institution) => onChange({ ...education, institution })}
+        />
+        <TextField
+          label="Period"
+          value={education.period}
+          onChange={(period) => onChange({ ...education, period })}
+          placeholder="2022 – Present"
+        />
+        <TextField
+          label="Location"
+          value={education.location ?? ""}
+          onChange={(location) => onChange({ ...education, location: location || undefined })}
+        />
+        <TextAreaField
+          label="Description"
+          value={education.description ?? ""}
+          onChange={(description) => onChange({ ...education, description: description || undefined })}
+        />
+        <StringListEditor
+          label="Highlights"
+          items={education.highlights}
+          onChange={(highlights) => onChange({ ...education, highlights })}
+          itemLabel="Highlight"
+        />
+      </div>
+    </div>
+  );
+}
+
+type CertificationEditorProps = {
+  certification: CertificationItem;
+  index: number;
+  onChange: (certification: CertificationItem) => void;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+};
+
+export function CertificationEditor({
+  certification,
+  index,
+  onChange,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
+}: CertificationEditorProps) {
+  return (
+    <div className="admin-list-item">
+      <div className="admin-list-item-header">
+        <h4>
+          #{index + 1} — {certification.title || "Untitled Certification"}
+        </h4>
+        <div className="admin-actions">
+          <button type="button" className="admin-btn" onClick={onMoveUp} disabled={!canMoveUp}>
+            ↑
+          </button>
+          <button type="button" className="admin-btn" onClick={onMoveDown} disabled={!canMoveDown}>
+            ↓
+          </button>
+          <button type="button" className="admin-btn admin-btn-danger" onClick={onRemove}>
+            Delete
+          </button>
+        </div>
+      </div>
+      <div className="admin-grid">
+        <TextField
+          label="ID (slug)"
+          value={certification.id}
+          onChange={(id) => onChange({ ...certification, id })}
+        />
+        <TextField
+          label="Title"
+          value={certification.title}
+          onChange={(title) => onChange({ ...certification, title })}
+        />
+        <TextField
+          label="Issuer"
+          value={certification.issuer}
+          onChange={(issuer) => onChange({ ...certification, issuer })}
+        />
+        <TextField
+          label="Period"
+          value={certification.period ?? ""}
+          onChange={(period) => onChange({ ...certification, period: period || undefined })}
+        />
+        <TextField
+          label="Credential URL"
+          value={certification.credentialUrl ?? ""}
+          onChange={(credentialUrl) =>
+            onChange({ ...certification, credentialUrl: credentialUrl || undefined })
+          }
+        />
+        <TextAreaField
+          label="Description"
+          value={certification.description ?? ""}
+          onChange={(description) =>
+            onChange({ ...certification, description: description || undefined })
+          }
+        />
+      </div>
     </div>
   );
 }

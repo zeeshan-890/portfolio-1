@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import PortfolioNavObserver from "./components/PortfolioNavObserver";
+import PortfolioAnalytics from "./components/PortfolioAnalytics";
 import ResumePickerButton from "./components/ResumePickerButton";
 import type { PortfolioProject } from "./data/portfolioTypes";
 import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
@@ -86,6 +87,7 @@ export default async function Home() {
 
   return (
     <>
+      <PortfolioAnalytics page="/" />
       <PortfolioNavObserver />
       <div className="portfolio-home">
         <div className="top-bar" />

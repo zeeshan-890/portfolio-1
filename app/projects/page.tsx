@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ProjectsFilterGrid from "../components/ProjectsFilterGrid";
+import PortfolioAnalytics from "../components/PortfolioAnalytics";
 import { getPortfolioData } from "../lib/portfolioStore";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,9 @@ export default async function ProjectsPage() {
   const { profile, projects, projectsPage, projectCategories } = data;
 
   return (
-    <div className="projects-page">
+    <>
+      <PortfolioAnalytics page="/projects" />
+      <div className="projects-page">
       <div className="page-wrap">
         <header className="header">
           <div className="container header-inner">
@@ -55,5 +58,6 @@ export default async function ProjectsPage() {
         </main>
       </div>
     </div>
+    </>
   );
 }

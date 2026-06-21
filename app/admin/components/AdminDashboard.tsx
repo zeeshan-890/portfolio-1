@@ -23,6 +23,7 @@ import {
   TextField,
   ToggleField,
 } from "./AdminFields";
+import AdminAnalytics from "./AdminAnalytics";
 import ResumeManager from "./ResumeManager";
 
 const TABS = [
@@ -37,6 +38,7 @@ const TABS = [
   { id: "navigation", label: "Navigation" },
   { id: "sections", label: "Sections" },
   { id: "seo", label: "SEO" },
+  { id: "analytics", label: "Analytics" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -290,6 +292,7 @@ export default function AdminDashboard() {
     navigation: "Navigation",
     sections: "Section Visibility",
     seo: "SEO & Metadata",
+    analytics: "Analytics",
   };
 
   return (
@@ -320,7 +323,7 @@ export default function AdminDashboard() {
           <div className="admin-header">
             <div>
               <h2>{tabLabels[tab]}</h2>
-              {data && (
+              {data && tab !== "analytics" && (
                 <p className="admin-data-summary">
                   Editing stored data: {data.projects.length} projects · {data.experiences.length}{" "}
                   experience · {data.education.length} education · {data.certifications.length}{" "}
@@ -329,31 +332,37 @@ export default function AdminDashboard() {
               )}
             </div>
             <div className="admin-actions">
-              <button type="button" className="admin-btn" onClick={() => loadData()}>
-                Reload
-              </button>
-              <button
-                type="button"
-                className="admin-btn"
-                onClick={handleMigrate}
-                disabled={saving}
-              >
-                Upgrade Old Data
-              </button>
-              <button
-                type="button"
-                className="admin-btn admin-btn-primary"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
+              {tab !== "analytics" && (
+                <>
+                  <button type="button" className="admin-btn" onClick={() => loadData()}>
+                    Reload
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn"
+                    onClick={handleMigrate}
+                    disabled={saving}
+                  >
+                    Upgrade Old Data
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-primary"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
-          {status && <div className={`admin-status ${status.type}`}>{status.message}</div>}
+          {status && tab !== "analytics" && <div className={`admin-status ${status.type}`}>{status.message}</div>}
 
-          {tab === "profile" && (
+          {tab === "analytics" && <AdminAnalytics />}
+
+          {tab !== "analytics" && tab === "profile" && (
             <div className="admin-panel">
               <div className="admin-grid">
                 <TextField

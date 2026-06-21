@@ -332,9 +332,53 @@ type StringListEditorProps = {
   items: string[];
   onChange: (items: string[]) => void;
   itemLabel?: string;
+  /** Compact layout for use inside experience/education editor grids. */
+  embedded?: boolean;
 };
 
-export function StringListEditor({ label, items, onChange, itemLabel = "Item" }: StringListEditorProps) {
+export function StringListEditor({
+  label,
+  items,
+  onChange,
+  itemLabel = "Item",
+  embedded = false,
+}: StringListEditorProps) {
+  if (embedded) {
+    return (
+      <div className="admin-field full admin-string-list">
+        <label>{label}</label>
+        <div className="admin-string-list-items">
+          {items.map((item, index) => (
+            <div key={index} className="admin-string-list-row">
+              <textarea
+                value={item}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[index] = e.target.value;
+                  onChange(next);
+                }}
+                rows={2}
+                placeholder={`${itemLabel} ${index + 1}`}
+                aria-label={`${itemLabel} ${index + 1}`}
+              />
+              <button
+                type="button"
+                className="admin-btn admin-btn-danger admin-string-list-remove"
+                onClick={() => onChange(items.filter((_, i) => i !== index))}
+                aria-label={`Remove ${itemLabel} ${index + 1}`}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <button type="button" className="admin-btn" onClick={() => onChange([...items, ""])}>
+          + Add {itemLabel}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-panel">
       <h3>{label}</h3>
@@ -486,6 +530,14 @@ export function ExperienceEditor({
           onChange={(company) => onChange({ ...experience, company })}
         />
         <TextField
+          label="Company Logo URL (LinkedIn)"
+          value={experience.companyLogoUrl ?? ""}
+          onChange={(companyLogoUrl) =>
+            onChange({ ...experience, companyLogoUrl: companyLogoUrl || undefined })
+          }
+          placeholder="https://media.licdn.com/dms/image/..."
+        />
+        <TextField
           label="Period"
           value={experience.period}
           onChange={(period) => onChange({ ...experience, period })}
@@ -506,6 +558,7 @@ export function ExperienceEditor({
           items={experience.highlights}
           onChange={(highlights) => onChange({ ...experience, highlights })}
           itemLabel="Highlight"
+          embedded
         />
       </div>
     </div>
@@ -588,6 +641,7 @@ export function EducationEditor({
           items={education.highlights}
           onChange={(highlights) => onChange({ ...education, highlights })}
           itemLabel="Highlight"
+          embedded
         />
       </div>
     </div>

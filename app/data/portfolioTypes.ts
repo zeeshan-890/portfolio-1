@@ -44,6 +44,7 @@ export type ExperienceItem = {
   id: string;
   role: string;
   company: string;
+  companyLogoUrl?: string;
   period: string;
   location?: string;
   description: string;

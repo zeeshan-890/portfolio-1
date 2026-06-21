@@ -12,6 +12,11 @@ import type {
 } from "../data/portfolioTypes";
 import { LEGACY_PROJECT_CATEGORY_MAP, createCategoryId } from "./projectUtils";
 
+type NormalizeOptions = {
+  /** When true, missing list fields stay empty instead of falling back to seed defaults. */
+  fromStorage?: boolean;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -111,6 +116,10 @@ function normalizeExperience(value: unknown, index: number): ExperienceItem {
     id: asString(source.id, `experience-${index + 1}`),
     role: asString(source.role, "Role"),
     company: asString(source.company, "Company"),
+    companyLogoUrl:
+      typeof source.companyLogoUrl === "string" && source.companyLogoUrl.trim()
+        ? source.companyLogoUrl.trim()
+        : undefined,
     period: asString(source.period, "Period"),
     location: typeof source.location === "string" ? source.location : undefined,
     description: asString(source.description, ""),
@@ -187,7 +196,11 @@ function normalizeNavigation(value: unknown): NavItem[] {
   return base;
 }
 
-export function normalizePortfolioData(input: unknown): PortfolioData {
+export function normalizePortfolioData(
+  input: unknown,
+  options: NormalizeOptions = {}
+): PortfolioData {
+  const fromStorage = options.fromStorage ?? false;
   const partial = isRecord(input) ? input : {};
   const profileSource = isRecord(partial.profile) ? partial.profile : {};
   const aboutSource = isRecord(partial.about) ? partial.about : {};
@@ -215,7 +228,9 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
     ? partial.projects.map((item, index) =>
         normalizeProject(item, index, projectCategories, featuredCount)
       )
-    : defaultPortfolioData.projects;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.projects;
 
   const heroStats = Array.isArray(partial.heroStats)
     ? partial.heroStats.map((item, index) => {
@@ -225,21 +240,29 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
           label: asString(source.label, defaultPortfolioData.heroStats[index]?.label ?? ""),
         };
       })
-    : defaultPortfolioData.heroStats;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.heroStats;
 
   const navigation = normalizeNavigation(partial.navigation);
 
   const experiences = Array.isArray(partial.experiences)
     ? partial.experiences.map(normalizeExperience)
-    : defaultPortfolioData.experiences;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.experiences;
 
   const education = Array.isArray(partial.education)
     ? partial.education.map(normalizeEducation)
-    : defaultPortfolioData.education;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.education;
 
   const certifications = Array.isArray(partial.certifications)
     ? partial.certifications.map(normalizeCertification)
-    : defaultPortfolioData.certifications;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.certifications;
 
   const resumes: PortfolioResume[] = Array.isArray(partial.resumes)
     ? partial.resumes
@@ -251,7 +274,9 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
           };
         })
         .filter((item) => item.id && item.title)
-    : defaultPortfolioData.resumes;
+    : fromStorage
+      ? []
+      : defaultPortfolioData.resumes;
 
   const legacyResumePath =
     isRecord(profileSource) && typeof profileSource.resumePath === "string"
@@ -287,7 +312,11 @@ export function normalizePortfolioData(input: unknown): PortfolioData {
       ),
       viewWork: asString(heroButtonsSource.viewWork, defaultPortfolioData.heroButtons.viewWork),
     },
-    skills: normalizeSkills(partial.skills).slice(0, 6),
+    skills: Array.isArray(partial.skills)
+      ? normalizeSkills(partial.skills).slice(0, 6)
+      : fromStorage
+        ? []
+        : defaultPortfolioData.skills,
     about: {
       heading: asString(aboutSource.heading, defaultPortfolioData.about.heading),
       subheading: asString(aboutSource.subheading, defaultPortfolioData.about.subheading),

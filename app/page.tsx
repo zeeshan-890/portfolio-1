@@ -421,18 +421,32 @@ export default async function Home() {
                       {index < experiences.length - 1 && <span className="experience-marker-line" />}
                     </div>
                     <div className="experience-content">
-                      <div className="experience-meta">
-                        <span className="experience-period">{item.period}</span>
-                        {item.location && (
-                          <span className="experience-location">{item.location}</span>
+                      <div className="experience-head">
+                        <div className="experience-head-text">
+                          <div className="experience-meta">
+                            <span className="experience-period">{item.period}</span>
+                            {item.location && (
+                              <span className="experience-location">{item.location}</span>
+                            )}
+                          </div>
+                          <h3 className="experience-role" itemProp="roleName">
+                            {item.role}
+                          </h3>
+                          <p className="experience-company" itemProp="name">
+                            {item.company}
+                          </p>
+                        </div>
+                        {item.companyLogoUrl && (
+                          <img
+                            src={item.companyLogoUrl}
+                            alt={`${item.company} logo`}
+                            className="experience-company-logo"
+                            loading="lazy"
+                            decoding="async"
+                            referrerPolicy="no-referrer"
+                          />
                         )}
                       </div>
-                      <h3 className="experience-role" itemProp="roleName">
-                        {item.role}
-                      </h3>
-                      <p className="experience-company" itemProp="name">
-                        {item.company}
-                      </p>
                       <p className="experience-description" itemProp="description">
                         {item.description}
                       </p>

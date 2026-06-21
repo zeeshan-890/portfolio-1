@@ -77,7 +77,10 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+    }
     const res = await fetch("/api/portfolio");
     if (!res.ok) {
       const payload = (await res.json().catch(() => null)) as { error?: string; details?: string } | null;
@@ -85,12 +88,16 @@ export default function AdminDashboard() {
         ? `${payload.error ?? "Failed to load portfolio data"}: ${payload.details}`
         : payload?.error ?? "Failed to load portfolio data";
       setStatus({ type: "error", message });
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
       return;
     }
     const json = (await res.json()) as PortfolioData;
     setData(json);
-    setLoading(false);
+    if (!silent) {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -110,6 +117,7 @@ export default function AdminDashboard() {
 
     if (res.ok) {
       setStatus({ type: "success", message: "Portfolio saved successfully!" });
+      await loadData(true);
     } else {
       const payload = (await res.json().catch(() => null)) as { error?: string; details?: string } | null;
       const message = payload?.details
@@ -117,6 +125,42 @@ export default function AdminDashboard() {
         : payload?.error ?? "Failed to save. Check your session and try again.";
       setStatus({ type: "error", message });
     }
+    setSaving(false);
+  }
+
+  async function handleMigrate() {
+    setSaving(true);
+    setStatus(null);
+
+    const res = await fetch("/api/portfolio/migrate", { method: "POST" });
+
+    if (res.ok) {
+      const payload = (await res.json()) as {
+        counts?: {
+          projects: number;
+          experiences: number;
+          education: number;
+          certifications: number;
+          skills: number;
+        };
+      };
+      const counts = payload.counts;
+      const summary = counts
+        ? `${counts.projects} projects, ${counts.experiences} experience, ${counts.education} education, ${counts.certifications} certifications`
+        : "all sections";
+      setStatus({
+        type: "success",
+        message: `Existing data upgraded and saved (${summary}).`,
+      });
+      await loadData(true);
+    } else {
+      const payload = (await res.json().catch(() => null)) as { error?: string; details?: string } | null;
+      const message = payload?.details
+        ? `${payload.error ?? "Failed to migrate"}: ${payload.details}`
+        : payload?.error ?? "Failed to upgrade existing data.";
+      setStatus({ type: "error", message });
+    }
+
     setSaving(false);
   }
 
@@ -227,7 +271,7 @@ export default function AdminDashboard() {
     return (
       <div className="admin-login">
         <p className="admin-status error">Could not load portfolio data.</p>
-        <button type="button" className="admin-btn" onClick={loadData}>
+        <button type="button" className="admin-btn" onClick={() => loadData()}>
           Retry
         </button>
       </div>
@@ -274,10 +318,27 @@ export default function AdminDashboard() {
 
         <main className="admin-main">
           <div className="admin-header">
-            <h2>{tabLabels[tab]}</h2>
+            <div>
+              <h2>{tabLabels[tab]}</h2>
+              {data && (
+                <p className="admin-data-summary">
+                  Editing stored data: {data.projects.length} projects · {data.experiences.length}{" "}
+                  experience · {data.education.length} education · {data.certifications.length}{" "}
+                  certifications · {data.skills.length} skill groups
+                </p>
+              )}
+            </div>
             <div className="admin-actions">
-              <button type="button" className="admin-btn" onClick={loadData}>
+              <button type="button" className="admin-btn" onClick={() => loadData()}>
                 Reload
+              </button>
+              <button
+                type="button"
+                className="admin-btn"
+                onClick={handleMigrate}
+                disabled={saving}
+              >
+                Upgrade Old Data
               </button>
               <button
                 type="button"

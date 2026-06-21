@@ -23,7 +23,7 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     }
 
     const { _id: _ignored, updatedAt: _updatedAt, ...data } = doc;
-    return normalizePortfolioData(data);
+    return normalizePortfolioData(data, { fromStorage: true });
   } catch (error) {
     console.error("[portfolio] Failed to load from MongoDB:", error);
     throw error;
@@ -44,6 +44,23 @@ export async function savePortfolioData(data: PortfolioData): Promise<void> {
     },
     { upsert: true }
   );
+}
+
+export async function migratePortfolioData(): Promise<PortfolioData> {
+  const db = await getDb();
+  const existing = await db
+    .collection<PortfolioDocument>(COLLECTION)
+    .findOne({ _id: DOCUMENT_ID });
+
+  if (!existing) {
+    await savePortfolioData(defaultPortfolioData);
+    return defaultPortfolioData;
+  }
+
+  const { _id: _ignored, updatedAt: _updatedAt, ...raw } = existing;
+  const migrated = normalizePortfolioData(raw, { fromStorage: true });
+  await savePortfolioData(migrated);
+  return migrated;
 }
 
 export async function seedPortfolioData(

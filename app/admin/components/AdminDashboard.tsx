@@ -48,7 +48,11 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     const res = await fetch("/api/portfolio");
     if (!res.ok) {
-      setStatus({ type: "error", message: "Failed to load portfolio data" });
+      const payload = (await res.json().catch(() => null)) as { error?: string; details?: string } | null;
+      const message = payload?.details
+        ? `${payload.error ?? "Failed to load portfolio data"}: ${payload.details}`
+        : payload?.error ?? "Failed to load portfolio data";
+      setStatus({ type: "error", message });
       setLoading(false);
       return;
     }
@@ -75,7 +79,11 @@ export default function AdminDashboard() {
     if (res.ok) {
       setStatus({ type: "success", message: "Portfolio saved successfully!" });
     } else {
-      setStatus({ type: "error", message: "Failed to save. Check your session and try again." });
+      const payload = (await res.json().catch(() => null)) as { error?: string; details?: string } | null;
+      const message = payload?.details
+        ? `${payload.error ?? "Failed to save"}: ${payload.details}`
+        : payload?.error ?? "Failed to save. Check your session and try again.";
+      setStatus({ type: "error", message });
     }
     setSaving(false);
   }

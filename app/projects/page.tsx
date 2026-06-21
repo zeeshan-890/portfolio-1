@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import type { PortfolioProject } from "../data/portfolioTypes";
 import { getPortfolioData } from "../lib/portfolioStore";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getPortfolioData();
   return {

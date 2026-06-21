@@ -6,6 +6,8 @@ import {
   isAdminPasswordValid,
 } from "@/app/lib/auth";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   if (!isAdminConfigured()) {
     return NextResponse.json(

@@ -4,6 +4,8 @@ import PortfolioNavObserver from "./components/PortfolioNavObserver";
 import type { PortfolioProject } from "./data/portfolioTypes";
 import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getPortfolioData();
   return {

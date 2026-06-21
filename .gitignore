@@ -34,9 +34,6 @@ yarn-error.log*
 .env*
 !.env.example
 
-# persisted portfolio data (managed via admin panel)
-/data/portfolio.json
-
 # vercel
 .vercel
 

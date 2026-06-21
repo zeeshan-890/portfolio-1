@@ -371,6 +371,75 @@
   text-align: center;
 }
 
+.admin-upload-field {
+  gap: 10px;
+}
+
+.admin-upload-box {
+  position: relative;
+  border: 1px dashed #3a3a40;
+  border-radius: 10px;
+  background: #0e0e10;
+  min-height: 110px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.admin-upload-box:hover {
+  border-color: #666;
+  background: #111114;
+}
+
+.admin-upload-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.admin-upload-input:disabled {
+  cursor: not-allowed;
+}
+
+.admin-upload-content {
+  text-align: center;
+  pointer-events: none;
+}
+
+.admin-upload-content p {
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.admin-upload-content span {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.admin-upload-link {
+  font-size: 0.85rem;
+  color: #8ab4f8;
+  text-decoration: none;
+}
+
+.admin-upload-link:hover {
+  text-decoration: underline;
+}
+
+.admin-upload-message {
+  font-size: 0.85rem;
+}
+
+.admin-upload-message.success {
+  color: #6fcf97;
+}
+
+.admin-upload-message.error {
+  color: #ff6b6b;
+}
+
 @media (max-width: 768px) {
   .admin-shell {
     grid-template-columns: 1fr;

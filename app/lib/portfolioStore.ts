@@ -62,6 +62,14 @@ export async function seedPortfolioData(
   return existing ? "updated" : "seeded";
 }
 
+export async function updateResumePath(resumePath: string): Promise<void> {
+  const data = await getPortfolioData();
+  await savePortfolioData({
+    ...data,
+    profile: { ...data.profile, resumePath },
+  });
+}
+
 export function getFeaturedProjects(data: PortfolioData) {
   const count = Math.max(0, data.projectsSection.featuredCount);
   return data.projects.slice(0, count);

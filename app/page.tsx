@@ -1,9 +1,11 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
+import GitHubActivityCard from "./components/GitHubActivityCard";
 import PortfolioNavObserver from "./components/PortfolioNavObserver";
 import PortfolioAnalytics from "./components/PortfolioAnalytics";
 import ResumePickerButton from "./components/ResumePickerButton";
 import type { PortfolioProject } from "./data/portfolioTypes";
+import { getGitHubActivity } from "./lib/github/activity";
 import { getFeaturedProjects, getPortfolioData } from "./lib/portfolioStore";
 import { getProjectCategoryLabel } from "./lib/projectUtils";
 
@@ -78,6 +80,7 @@ export default async function Home() {
   const { profile, heroStats, skills, about, contact, experienceSection, experiences, educationCertificationsSection, education, certifications, projectsSection, projectCategories, sections, navigation, resumes } =
     data;
   const featuredProjects = getFeaturedProjects(data);
+  const githubActivity = sections.hero ? await getGitHubActivity(profile.github) : null;
   const enabledNav = navigation.filter((item) => item.enabled);
   const skillsLayout = getSkillsLayout(skills.length);
 
@@ -324,6 +327,8 @@ export default async function Home() {
                   <button type="button">{profile.availabilityText}</button>
                 </div>
               </div>
+
+              {githubActivity && <GitHubActivityCard activity={githubActivity} />}
             </div>
             )}
 

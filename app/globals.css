@@ -740,6 +740,10 @@ a {
   .portfolio-home .hero-photo {
     min-height: 240px;
   }
+
+  .portfolio-home .hero-github-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .portfolio-home .about-section {

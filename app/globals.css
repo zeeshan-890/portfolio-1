@@ -1257,6 +1257,13 @@ a {
   gap: 22px;
 }
 
+.portfolio-home .projects-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  padding-top: 8px;
+}
+
 .portfolio-home .project-glow-card {
   position: relative;
   overflow: hidden;

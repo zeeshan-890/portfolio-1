@@ -574,6 +574,25 @@ export default async function Home() {
                   );
                 })}
               </div>
+
+              <div className="projects-footer scroll-reveal animate-fade-in-up revealed">
+                <a className="projects-all-link glass-card hover-lift hover-shine" href="/projects">
+                  {projectsSection.viewAllLabel}
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
             </div>
           </section>
           )}
